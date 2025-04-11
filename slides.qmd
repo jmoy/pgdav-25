@@ -1,0 +1,693 @@
+---
+title: "Neural Networks with Keras"
+author: "Jyotirmoy Bhattacharya"
+format:
+  revealjs:
+    theme: simple # Or choose another theme like dark, beige, sky, etc.
+    smaller: true
+    scrollable: true # Allows scrolling for longer content if needed
+---
+
+## Agenda 
+
+1.  The Supervised Machine Learning Framework
+2.  ML vs. Econometrics: Key Differences
+3.  Optimization: Gradient Descent
+4.  The Machine Learning Workflow
+5.  Neural Networks: The Basics
+6.  Building Blocks: Neurons and Architectures
+7.  Activation Functions
+8.  Introducing Keras 3 in R
+9.  The `tidymodels` Ecosystem
+10. Data Preprocessing with `recipes`
+11. Building Models with Keras & `tidymodels`
+12. Evaluation with `yardstick`
+13. Examples
+---
+
+## The Supervised Machine Learning Framework {background-color="#F0E442"}
+
+---
+
+## The Goal: Learning from Data
+
+* Knowing a set of input features (predictors, independent variables) $X$, predict an output (target, dependent variable) $Y$.
+* **Supervised Learning:** Learn from a dataset of labeled examples $(x_i, y_i)$, where $i = 1, ..., N$.
+* Examples:
+    * Predicting income ($Y$) based on education, age, occupation ($X$).
+    * Classifying emails as spam ($Y=1$) or not spam ($Y=0$) based on email content ($X$).
+    * Extract a table ($Y$) from a PDF page ($X$).
+
+---
+
+## The Data Generating Process (DGP)
+
+* Assumption: A probability distribution $P(X, Y)$ from which our observed data points $(x_i, y_i)$ are drawn.
+* Often assumed to be **independent and identically distributed (i.i.d.)**. Each data point is drawn independently from the same distribution.
+* Find a function $f(X)$ that predicts $Y$ well, on *new, unseen* data drawn from the same $P(X, Y)$.
+
+---
+
+## Parametric Decision Rules (Models)
+
+* We restrict our search to a specific *family* of functions, $f(X; \theta)$ parameterized by a set of parameters $\theta$.
+* Examples:
+    * Linear Regression: $f(X; \beta) = X\beta$ (where $\theta = \beta$)
+    * Logit Model: $P(Y=1|X; \beta) = \frac{1}{1 + e^{-X\beta}}$ (where $\theta = \beta$)
+    * Neural Networks
+---
+
+## Measuring "Goodness": The Loss Function
+
+* The **Loss Function** $L(y_{true}, y_{pred})$, measures the "cost" or "error" of predicting $y_{pred} = f(x; \theta)$ when the true value is $y_{true}$.
+* Desirable properties: $L \ge 0$, and $L=0$ if $y_{true} = y_{pred}$.
+* Examples:
+    * Squared Error Loss (Regression): $L(y_{true}, y_{pred}) = (y_{true} - y_{pred})^2$
+    * Absolute Error Loss (Regression): $L(y_{true}, y_{pred}) = |y_{true} - y_{pred}|$
+    * 0/1 Loss (Classification): $L(y_{true}, y_{pred}) = \mathbb{I}(y_{true} \neq y_{pred})$ (Indicator function)
+    * Log Loss / Binary Cross-Entropy (Classification): (We'll see this later)
+
+---
+
+## Finding the Best Parameters: Risk Minimization
+
+* Ideal Goal: Find $\theta$ that minimizes the **Expected Risk** (or true error) over the entire data distribution $P(X, Y)$:
+    $$R(\theta) = \mathbb{E}_{(X,Y) \sim P} [L(Y, f(X; \theta))]$$
+* Problem: We don't know $P(X, Y)$! We only have our sample data $\{(x_i, y_i)\}_{i=1}^N$.
+
+---
+
+## Empirical Risk Minimization (ERM)
+
+* Strategy: Minimize the average loss *on the data we have*. This is the **Empirical Risk**:
+    $$\hat{R}(\theta) = \frac{1}{N} \sum_{i=1}^N L(y_i, f(x_i; \theta))$$
+* We find the parameters $\hat{\theta}$ that minimize this empirical risk:
+    $$\hat{\theta}_{ERM} = \arg \min_{\theta} \hat{R}(\theta)$$
+* Hope: If $N$ is large enough, $\hat{R}(\theta)$ should be close to $R(\theta)$, and $\hat{\theta}_{ERM}$ should yield a function $f(X; \hat{\theta}_{ERM})$ that performs well on unseen data.
+
+---
+
+## Example: Linear Regression & OLS
+
+* Model: $f(X; \beta) = X\beta$
+* Loss Function: Squared Error Loss $L(y, \hat{y}) = (y - \hat{y})^2$
+* Empirical Risk: $\hat{R}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - x_i\beta)^2$ (Mean Squared Error - MSE)
+* Minimizing this $\hat{R}(\beta)$ is equivalent to minimizing the Sum of Squared Residuals (SSR): $\sum_{i=1}^N (y_i - x_i\beta)^2$.
+* The solution $\hat{\beta}_{OLS} = (X'X)^{-1}X'Y$ is exactly the ERM solution for linear models under squared error loss!
+
+---
+
+## ML vs. Econometrics {background-color="#E69F00"}
+
+---
+
+## Shared Roots, Different Emphasis
+
+* Both fields use data to learn about relationships.
+* Both often use parametric models and optimization.
+* Econometrics: Strong focus on **causal inference**, **interpretability**, **statistical significance**, and **asymptotic theory**. Often uses simpler, theory-driven models.
+* Machine Learning: Strong focus on **predictive accuracy** on unseen data. Often uses highly flexible, complex models ("black boxes"). Less emphasis on asymptotics, more on finite-sample performance (generalization).
+
+---
+
+## Functional Form Flexibility
+
+* **Econometrics:** Often relies on linear models or specific non-linear forms derived from economic theory (e.g., Logit/Probit from utility maximization). Parsimony is valued.
+* **Machine Learning:** Embraces highly flexible functional forms (e.g., deep neural networks, random forests, gradient boosting). Can potentially capture very complex, non-linear relationships *without* prior theory. The cost can be interpretability.
+
+---
+
+## Theory: Asymptotic vs. Finite Sample
+
+* **Econometrics:** Relies heavily on asymptotic theory (what happens as $N \to \infty$) to justify properties of estimators (consistency, asymptotic normality) and inference (t-tests, F-tests).
+* **Machine Learning:** More empirically driven. Performance measured by testing on hold-out data and benchmarks.
+
+---
+
+## Prediction vs. Causality
+
+* **Prediction:** Goal is to build a model $f(X)$ that accurately predicts $Y$ for new $X$ under a fixed data generation process. We don't necessarily care *why* the prediction works, only that it does.
+    * Example: Father's car ownership predicts child's school marks.
+* **Causal Inference:** Goal is to understand the effect of **intervening** to set a variable to a changed value, changing the data generating-process. **Counterfactual**. Requires stronger assumptions (e.g., exogeneity, identification strategies).
+    * Example: Estimating the effect of education on wages.
+
+* ML tools *can* be used for causal inference (e.g., Double Machine Learning), but prediction is the primary goal in standard ML.
+
+---
+
+## Optimization: Gradient Descent {background-color="#56B4E9"}
+
+---
+
+## Finding the Minimum
+
+* We want to find $\hat{\theta} = \arg \min_{\theta} \hat{R}(\theta)$.
+* For OLS, we had a closed-form solution.
+* For many complex models (like neural networks) or loss functions, a closed-form solution doesn't exist or is computationally infeasible.
+* We need an **iterative optimization algorithm**. The most common is **Gradient Descent**.
+
+---
+
+## Gradient Descent: The Intuition
+
+* The negative gradient of the empirical risk $\hat{R}(\theta)$ with respect to $\theta$ gives the direction of steepest descent.
+* Taking *small* steps in this direction will reduce empirical risk.
+* If we keep doing that we will reach a minimum.
+* Caveats!
+---
+
+## Gradient Descent: The Algorithm
+
+1.  Initialize parameters $\theta^{(0)}$.
+2.  For $t = 0, 1, 2, ...$ until convergence:
+    a.  Compute the gradient of the empirical risk with respect to the parameters, evaluated at the current parameters $\theta^{(t)}$:
+        $$g^{(t)} = \nabla_{\theta} \hat{R}(\theta^{(t)}) = \frac{1}{N} \sum_{i=1}^N \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))$$
+    b.  Update the parameters by taking a step in the negative gradient direction:
+        $$\theta^{(t+1)} = \theta^{(t)} - \eta g^{(t)}$$
+
+* $\eta$ is the **learning rate**: a hyperparameter controlling the step size. Too small $\implies$ slow convergence. Too large $\implies$ overshoot the minimum or diverge.
+
+---
+
+## The Gradient Calculation Challenge
+
+* Calculating the gradient $g^{(t)}$ requires summing the gradients for *every single data point* in the training set ($N$ points).
+    $$g^{(t)} = \frac{1}{N} \sum_{i=1}^N \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))$$
+* If $N$ is large (millions or billions), calculating the full gradient at each step is computationally very expensive!
+
+---
+
+## Stochastic Gradient Descent (SGD)
+
+* Idea: For empirical risk, the gradient over the entire dataset is an average of the gradient at each observation. Approximate this population average by a sample average on a small, randomly chosen subset of the data, called a **mini-batch**.
+* Let $\mathcal{B}_t$ be a randomly selected mini-batch of size $B$ (the **batch size**) at step $t$.
+* Approximate the true gradient using only the mini-batch:
+    $$\tilde{g}^{(t)} = \frac{1}{B} \sum_{i \in \mathcal{B}_t} \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))$$
+* Update rule:
+    $$\theta^{(t+1)} = \theta^{(t)} - \eta \tilde{g}^{(t)}$$
+
+---
+
+## SGD: Properties
+
+* **Faster Updates:** Each update is much faster as it uses only $B \ll N$ data points.
+* **Noisy Gradient:** The gradient estimate $\tilde{g}^{(t)}$ is noisy (it varies depending on the random batch). This noise can sometimes help escape shallow local minima.
+* **Convergence:** Converges "in expectation" under certain conditions. The path to the minimum is much more erratic than full batch gradient descent.
+* **Epoch:** One full pass through the *entire* training dataset is called an **epoch**. If the dataset has $N$ samples and the batch size is $B$, one epoch consists of approximately $N/B$ SGD updates (or steps/iterations).
+
+---
+
+## SGD Variants
+
+* Many variations exist to improve SGD's convergence speed and stability.
+* An algorithm know as *Adam* is currently the default choice.
+* Keras allows you to easily choose these optimizers.
+
+---
+
+## The Machine Learning Workflow {background-color="#009E73"}
+
+---
+
+## The Typical ML Workflow (1/2)
+
+1.  **Data Preparation:**
+    * Load data.
+    * Clean data (handle missing values, outliers).
+    * Feature Engineering (create new predictors).
+    * Preprocessing (scaling/normalization, encoding categoricals).
+2.  **Data Splitting:** Divide into Training, Validation, and Test sets.
+3.  **Model Training (Estimation):**
+    * Choose a model architecture/family.
+    * Choose hyperparameters (or a range to search over).
+    * Train the model(s) on the **Training Set**, often using the **Validation Set** to monitor progress (e.g., for early stopping) or tune hyperparameters (e.g., using cross-validation within the training set).
+    
+---
+
+## The Typical ML Workflow (2/2)
+
+4.  **Model Evaluation:**
+    * Evaluate the *final, chosen* model on the **Test Set** using relevant metrics (e.g., accuracy, MSE, AUC). This gives an unbiased estimate of generalization performance.
+5.  **Deployment (Optional):** Use the trained model to make predictions on new, unseen data.
+
+---
+
+## Overfitting: The Central Problem
+
+* ERM minimizes loss on the *training data*.
+* But our real goal is to minimize loss on *unseen data* (generalization).
+* A model can become too complex and fit the noise or specific quirks of the training data perfectly.
+* This leads to **overfitting**: Low training error but high error on new data.
+
+---
+
+## The Train/Test Split
+
+* Fundamental Idea: **Never evaluate your final model on the data used to train it.**
+* Split the initial dataset into two (or three) parts:
+    1.  **Training Set:** Used to fit the model parameters ($\theta$) using (S)GD. (~60-80% of data)
+    2.  **Test Set:** Held out completely. Used *only once* at the very end to estimate the final model's performance on unseen data (generalization error). (~20-40% of data)
+
+---
+
+## The Train/Validation/Test Split
+
+* Often, we need to tune **hyperparameters** (e.g., learning rate $\eta$, network architecture, regularization strength).
+* We cannot use the test set for this tuning, because we would implicitly be fitting the hyperparameters to the test set, leading to an overly optimistic performance estimate.
+* Solution: Create a third split:
+    1.  **Training Set:** Used to fit model parameters $\theta$. (~60%)
+    2.  **Validation Set (or Development Set):** Used to:
+        * Tune hyperparameters.
+        * Make decisions about model architecture.
+        * Decide when to stop training (early stopping). (~20%)
+    3.  **Test Set:** Used *only* for the final performance estimate. (~20%)
+
+---
+
+
+## Neural Networks: The Basics {background-color="#CC79A7"}
+
+---
+
+## What are Neural Networks?
+
+* Inspired (loosely) by the structure of brains.
+* Essentially, they are complex, parameterized functions $f(X; \theta)$ built by composing many simpler computational units (neurons) together in a network structure.
+* They are **computation graphs**: data flows in, undergoes a series of transformations defined by the network's structure and parameters, and an output is produced.
+* The parameters $\theta$ are learned from data using ERM and gradient descent (usually SGD).
+
+---
+
+## Why Use Neural Networks?
+
+* Universal Approximators. 
+* Feature Learning.
+* Fast Hardware.
+* It works! (If you have sufficient data)
+---
+
+## Units and Architectures {background-color="#D55E00"}
+
+---
+
+## The Unit (Neuron)
+
+* The basic building block.
+* Inputs: $x_1, x_2, ..., x_d$.
+* Output: $y = g(\sum_{j=1}^d w_j x_j + b)$
+    * $w_j$: **Weights** (parameters to be learned)
+    * $b$: **Bias** (parameter to be learned)
+    * $g(\cdot)$: **Activation Function** - introduces non-linearity (crucial!).
+
+---
+
+## Network Architecture: Layers
+
+* Neurons are typically organized into **layers**:
+    1.  **Input Layer:** Represents the raw input features $X$. 
+    2.  **Hidden Layers:** One or more layers of neurons between the input and output. These perform intermediate computations and learn data representations. This is where the "depth" in "deep learning" comes from.
+    3.  **Output Layer:** Produces the final prediction(s). The number of neurons and their activation function depend on the task (regression vs. classification).
+    
+<center>
+In a *fully connected* or *dense* layer each neuron in the layer is connected to *every* neuron in the *previous* layer.
+</center>
+
+---
+
+## Feedforward Networks (FFN)
+
+* The simplest and most common architecture.
+* Information flows in one direction: from input layer, through hidden layers (if any), to output layer.
+* No cycles or loops in the connections.
+* **Multilayer Perceptron (MLP):** A fully-connected feedforward network with one or more hidden layers. 
+
+
+---
+
+## Activation Functions {background-color="#44AA99"}
+
+---
+
+## The Role of Activation Functions
+
+* Applied to the output of the weighted sum ($z = \sum w_j x_j + b$) in each neuron: $y = g(z)$.
+* **Crucial Role:** Introduce **non-linearity** into the network.
+
+
+---
+
+## Common Activation Functions
+
+1.  **None / Linear / Identity:** $g(z) = z$
+2.  **Rectified Linear Unit (ReLU):** $g(z) = \max(0, z)$
+    * Outputs the input directly if positive, otherwise outputs zero.
+    * Current default for hidden layers.
+3.  **Sigmoid (Logistic):** $g(z) = \frac{1}{1 + e^{-z}}$
+    * Squeezes the input into the range (0, 1).
+    * Historically popular, often used in the **output layer** for **binary classification** problems (output interpreted as probability).
+    
+---
+
+## Activation Functions: Softmax
+
+4.  **Softmax:** (Applied to a *vector* of outputs $z = [z_1, ..., z_K]$ in the final layer)
+    $$g(z)_j = \frac{e^{z_j}}{\sum_{k=1}^K e^{z_k}} \quad \text{for } j=1, ..., K$$
+    * Takes a vector of arbitrary real values and transforms it into a probability distribution (outputs are non-negative and sum to 1).
+    * Used in the **output layer** for **multi-class classification** problems (where each input belongs to one of $K$ classes). The output $g(z)_j$ is interpreted as the probability that the input belongs to class $j$.
+
+---
+
+## Introducing Keras 3 in R {background-color="#88CCEE"}
+
+---
+
+## What is Keras?
+
+* Keras is a high-level API (Application Programming Interface) for building and training neural networks.
+* Focuses on user-friendliness, modularity, and extensibility.
+* Allows for fast prototyping and experimentation.
+* Originally developed for Python, but has excellent R integration via the `keras3` R package.
+* Actual computation is delegated to a **backend**: TensorFlow, PyTorch or JAX.
+
+---
+
+## Setting up Keras in R
+
+* Install the `keras3` R package: `install.packages("keras")`
+* Install Keras and a backend (e.g., TensorFlow, JAX): `keras3::install_keras()`
+    * This handles the Python dependencies via `reticulate`.
+* Configure the backend : `keras3::use_backend("jax")`
+* Start modelling!
+* Finicky in reality to get everything working
+---
+
+## The `tidymodels` Ecosystem {background-color="#DDCC77"}
+
+---
+
+## `tidymodels`
+
+* Ecosystem for the data modeling workflow in R
+    * `rsample`: Data splitting (train/test, cross-validation).
+    * `recipes`: Feature engineering and preprocessing.
+    * `parsnip`: Unified interface for specifying models (including Keras).
+    * `workflows`: Bundling preprocessing and models together.
+    * `tune`: Hyperparameter tuning.
+    * `yardstick`: Model evaluation metrics.
+
+---
+
+## Why `tidymodels`?
+
+* **Consistency:** Provides a common syntax and workflow for many different model types (linear models, trees, SVMs, NNs, etc.).
+* **Tidyverse Integration:** Works seamlessly with pipes (`%>%` or `|>`) and `dplyr`/`ggplot2`.
+* **Modularity:** Combines specialized packages for specific tasks (splitting, preprocessing, tuning, evaluation).
+* **Best Practices:** Encourages sound ML practices like proper data splitting and resampling.
+
+---
+
+## Integrating Keras with `tidymodels`
+
+* `tidymodels` provides an interface to use Keras models within its framework. But only a specific NN architecture.
+* We will directly work with Keras.
+* Use `tidymodels` libraries for pre-processing and evaluation.
+
+---
+
+## Data Preprocessing with `recipes` {background-color="#999933"}
+
+---
+
+## The Need for Preprocessing
+
+* Neural networks (and many other ML models) are sensitive to the scale and format of input data.
+* Common preprocessing steps:
+    * **Scaling/Normalization:** Bringing numerical features to a similar scale (e.g., mean 0, std dev 1) often helps gradient descent converge faster and perform better.
+    * **Encoding Categorical Features:** NNs require numerical inputs. Categorical variables need to be converted (e.g., one-hot encoding, dummy variables).
+    * **Handling Missing Values:** Imputing missing data (e.g., with mean, median, or a model).
+    * **Feature Engineering:** Creating new, potentially more informative features from existing ones.
+
+---
+
+## `recipes`: A Preprocessing Blueprint
+
+* A structured way to define a sequence of preprocessing steps.
+
+1.  **Initialize:** Start with `recipe(formula, data = training_data)`
+    * `formula`: Specifies the outcome and predictors (e.g., `income ~ .`).
+    * `data`: The *training* data is used to learn parameters needed for some steps (e.g., means, standard deviations for scaling).
+2.  **Add Steps:** Use `step_*` functions to add preprocessing actions. Examples:
+    * `step_impute_mean()` / `step_impute_median()`
+    * `step_normalize()` / `step_scale()` (Center and scale numeric predictors)
+    * `step_dummy()` / `step_novel()` / `step_other()` (Handle categorical predictors)
+    * `step_zv()` (Remove zero-variance predictors)
+    * Many others!
+
+---
+
+## Preparing and Applying the Recipe
+
+1.  **Estimate (`prep()`):** Learn the necessary parameters from the training data.
+    * `trained_recipe <- prep(my_recipe, training = training_data)`
+    * This calculates things like means, standard deviations, factor levels, etc., based *only* on the training set.
+2.  **Apply (`bake()`):** Apply the *trained* recipe to new data (training, validation, or test set).
+    * `processed_training_data <- bake(trained_recipe, new_data = training_data)`
+    * `processed_test_data <- bake(trained_recipe, new_data = test_data)`
+    * Ensures consistent preprocessing is applied using parameters learned *only* from the training data.
+
+---
+
+## `juice()` vs `bake()`
+
+* `juice(trained_recipe)`: Extracts the processed *training* data directly from the trained recipe object. Convenient shortcut.
+* `bake(trained_recipe, new_data = ...)`: Applies the trained recipe to *any* dataset (that has the required columns). Used for processing validation and test sets.
+
+---
+
+## Building Models with Keras {background-color="#117733"}
+
+---
+
+## Defining a Model Architecture
+
+* For densely connected feedforward network in Keras we use `keras_model_sequential()`.
+* Start with an empty sequential model.
+* Add layers using the pipe operator (`%>%` or `|>`).
+* Example: A simple MLP for binary classification
+    
+```r
+    # Assuming input_shape is defined based on preprocessed data
+    model <- keras_model_sequential(input_shape = input_shape) %>%
+      # Hidden layer 1: 64 neurons, ReLU activation
+      layer_dense(units = 64, activation = "relu") %>%
+      # Hidden layer 2: 32 neurons, ReLU activation
+      layer_dense(units = 32, activation = "relu") %>%
+      # Output layer: 1 neuron, sigmoid activation (for binary probability)
+      layer_dense(units = 1, activation = "sigmoid") 
+      
+    summary(model) # Print model architecture
+```
+
+---
+
+## Layer Types 
+
+* `layer_dense()`: Fully connected layer (most common).
+    * `units`: Number of neurons in the layer.
+    * `activation`: Activation function ("relu", "sigmoid", "softmax", "linear", etc.).
+* Other layer types exist for different tasks (e.g., `layer_conv_2d` for images, `layer_lstm` for sequences), but `layer_dense` is key for basic MLPs.
+
+---
+
+## Compiling the Model 
+* Before training, must call `compile()`.
+* This specifies:
+    1.  **Optimizer:** The algorithm used to update the weights (gradient descent variant).
+        * `optimizer = "adam"` (common default)
+    2.  **Loss Function:** The function to minimize during training (empirical risk). Chosen based on the task.
+        * `loss = "mse"` (Mean Squared Error - for regression)
+    3.  **Metrics:** Function(s) to monitor during training and evaluation (doesn't affect training, just for reporting).
+        * `metrics = c("mae", "mse")` (Mean Absolute Error, Mean Squared Error)
+        
+---
+
+## Compiling Example
+
+```r
+model %>% compile(
+  optimizer = "adam",
+  loss = "binary_crossentropy", # For our binary income prediction
+  metrics = c("accuracy", "auc") 
+)
+```
+
+---
+
+## Training the Model
+
+- The core training loop is executed by `fit()`.
+- You provide the training data and labels, and specify training parameters.
+- Key arguments:
+  - `x`: Training data features (e.g., matrix from `bake()`).
+  - `y`: Training data labels/targets.
+  - `epochs`: Number of times to iterate over the entire training dataset.
+  - `batch_size`: Number of samples per gradient update (SGD mini-batch size).
+  - `validation_split`: Fraction of training data to set aside as a validation set for monitoring loss/metrics during training (e.g., `validation_split = 0.2`). Keras handles the split internally.
+  - `validation_data`: Alternatively, provide a separate validation set explicitly `validation_data = list(x_val, y_val)`.
+  - `callbacks`: List of functions to apply at different stages of training (e.g., `callback_early_stopping()`).
+
+## Early Stopping 
+- Crucial technique to prevent overfitting.
+- Monitors a metric on the validation set (e.g., `val_loss` or `val_accuracy`).
+- Stops training automatically when the monitored metric stops improving for a specified number of epochs (`patience`).
+- Optionally restores the model weights from the epoch with the best performance (`restore_best_weights = TRUE`).
+
+---
+
+## Eary Stopping Example
+
+```r
+# Define the callback
+early_stopping <- callback_early_stopping(
+  monitor = "val_loss", # Monitor validation loss
+  patience = 10,        # Stop if no improvement for 10 epochs
+  restore_best_weights = TRUE 
+)
+
+# Pass it to fit()
+history <- model %>% fit(
+  x_train_processed, y_train,
+  epochs = 100, # Set a high number, early stopping will halt it
+  batch_size = 128,
+  validation_split = 0.2, 
+  callbacks = list(early_stopping) 
+)
+```
+
+## The history Object
+
+- `fit()` returns a history object.
+- It contains the loss and metric values recorded during training for both the training and validation sets (if used).
+- Very useful for diagnosing training: `plot(history)` shows learning curves. Look for overfitting (training loss decreasing, validation loss increasing).
+
+## Evaluation and Prediction {background-color="#661100"}
+
+## Evaluating Final Performance (evaluate())
+
+- Use the `evaluate()` method. It takes the processed test features and true test labels.
+- It returns the loss and metric values (specified during `compile()`) calculated on the test set. This provides an unbiased estimate of generalization performance.
+
+```r
+# Assume x_test_processed and y_test are prepared using the *trained* recipe
+results <- model %>% evaluate(
+  x_test_processed, 
+  y_test,
+  batch_size = 128 # Optional, can affect speed but not result
+)
+
+print(results) 
+# Example output: loss: 0.35, accuracy: 0.85, auc: 0.91 
+```
+
+## Making Predictions 
+
+- To get the model's output predictions on new data (e.g., the test set or future unseen data):
+  - Use the `predict()` method.
+  - It takes the processed input features.
+- The format of the predictions depends on the output layer's activation function:
+  - Sigmoid (binary classification): Returns probabilities (N x 1 matrix). You might need to threshold (e.g., at 0.5) to get class labels (0 or 1).
+  - Softmax (multi-class): Returns probabilities for each class (N x K matrix). You might use `which.max()` per row to get the predicted class label.
+  - Linear (regression): Returns the predicted numerical values (N x 1 matrix).
+
+```r
+# Get predicted probabilities for the test set
+probabilities <- model %>% predict(x_test_processed)
+
+# Convert probabilities to class predictions (e.g., for accuracy calculation)
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0) 
+```
+
+## Evaluation with yardstick
+
+- `yardstick` (part of tidymodels) provides a much richer set of evaluation tools, especially for classification.
+- Requires a data frame with columns for the true outcome and the model's predictions (probabilities and/or classes).
+
+```r
+library(yardstick)
+library(dplyr)
+
+# Create a results data frame
+results_df <- data.frame(
+  truth = factor(y_test), # True labels (as factors)
+  probability = as.vector(probabilities), # Predicted probabilities
+  prediction = factor(predicted_classes) # Predicted classes (as factors)
+)
+
+# Calculate common metrics
+conf_mat(results_df, truth = truth, estimate = prediction) # Confusion Matrix
+accuracy(results_df, truth = truth, estimate = prediction)
+roc_auc(results_df, truth = truth, probability) # AUC
+
+# Plot ROC curve
+roc_curve(results_df, truth = truth, probability) %>% autoplot()
+```
+
+## Example Context: Adult Income {background-color="#882255"}
+
+## The "Adult" Income Dataset
+
+- A classic benchmark dataset for binary classification.
+- Source: UCI Machine Learning Repository (extracted from US Census Bureau data).
+- Task: Predict whether an individual's annual income exceeds $50,000 based on various census attributes.
+- Outcome Variable: income (Binary: <=50K or >50K).
+
+## Variables (Features)
+
+- `age`: Continuous.
+- `workclass`: Categorical (Private, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, Without-pay, Never-worked).
+- `fnlwgt`: Continuous (sampling weight - often excluded from modeling).
+- `education`: Categorical (Bachelors, Some-college, 11th, HS-grad, Prof-school, Assoc-acdm, Assoc-voc, 9th, 7th-8th, 12th, Masters, 1st-4th, 10th, Doctorate, 5th-6th, Preschool).
+- `education_num`: Continuous (numerical representation of education).
+- `marital_status`: Categorical.
+- `occupation`: Categorical.
+- `relationship`: Categorical.
+- `race`: Categorical.
+- `sex`: Categorical (Female, Male).
+- `capital_gain`: Continuous.
+- `capital_loss`: Continuous.
+- `hours_per_week`: Continuous.
+- `native_country`: Categorical.
+
+## Binary Cross-Entropy Loss
+
+- For binary classification (0/1 outcome), the standard loss function is Binary Cross-Entropy.
+- Let $y_i \in \{0, 1\}$ be the true label and $\hat{p}_i = f(x_i; \theta)$ be the model's predicted probability (output of the sigmoid neuron) that $y_i=1$.
+- The loss for a single observation is:
+  $L(y_i, \hat{p}_i) = - [y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i)]$
+- If $y_i=1$, loss is $-\log(\hat{p}_i)$. Small loss if $\hat{p}_i \approx 1$. Large loss if $\hat{p}_i \approx 0$.
+- If $y_i=0$, loss is $-\log(1 - \hat{p}_i)$. Small loss if $\hat{p}_i \approx 0$. Large loss if $\hat{p}_i \approx 1$.
+- Minimizing the average binary cross-entropy over the training data is exactly equivalent to Maximum Likelihood Estimation (MLE) for a Logistic Regression model (assuming the sigmoid activation in the output layer).
+
+## Connection to Logit Model
+
+- Recall the logit model: $P(Y=1|X) = \frac{1}{1 + e^{-X\beta}}$.
+- The log-likelihood for N observations is:
+  $LL(\beta) = \sum_{i=1}^N [y_i \log(P(Y_i=1|x_i)) + (1 - y_i) \log(1 - P(Y_i=1|x_i))]$
+- Maximizing $LL(\beta)$ is equivalent to minimizing $-LL(\beta)$.
+- Letting $\hat{p}_i = P(Y_i=1|x_i)$, minimizing the average binary cross-entropy:
+  $\hat{R}(\theta) = \frac{1}{N} \sum_{i=1}^N L(y_i, \hat{p}_i) = -\frac{1}{N} LL(\theta)$
+- So, training a single-layer neural network with one output neuron (sigmoid activation) using binary cross-entropy loss is essentially fitting a logistic regression model via gradient descent. NNs extend this by adding hidden layers for more flexibility.
+
+## Plan for the Code Example
+
+1. Load & Explore: Load the Adult dataset, examine variables.
+2. Split Data: Use rsample (`initial_split`) for train/test split.
+3. Define Recipe: Use recipes to handle missing values, create dummy variables for categoricals, and normalize numeric predictors.
+4. Process Data: prep the recipe on training data, bake training and test sets. Extract processed matrices (x_train, y_train, x_test, y_test).
+5. Define Keras Model: Create a `keras_model_sequential` MLP (e.g., 2 hidden layers with ReLU, output layer with sigmoid).
+6. Compile Model: Use `compile` with `optimizer = "adam"`, `loss = "binary_crossentropy"`, `metrics = c("accuracy", "auc")`.
+7. Train Model: Use `fit` with epochs, batch_size, validation_split, and callback_early_stopping. Plot history.
+8. Evaluate Model: Use `evaluate` on the processed test set.
+9. Predict & Analyze: Use `predict` on the test set. Use yardstick (e.g., `roc_auc`, `conf_mat`) to analyze results.
+
+## Questions? {background-color="#0077BB"}

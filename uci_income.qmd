@@ -1,0 +1,335 @@
+---
+title: "Adult Income Classification"
+format: html
+editor: visual
+---
+
+## Setup
+
+```{r}
+# Install required packages if not already installed
+required_pkgs <- c("ucimlrepo", "keras3", "tidymodels","reticulate")
+installed_pkgs <- rownames(installed.packages())
+for(pkg in required_pkgs){
+  if (!(pkg %in% installed_pkgs)){
+    install.packages(pkg)
+  }
+}
+```
+
+```{r}
+library(tidymodels)
+library(keras3)
+```
+
+```{r}
+#Assuming you have a Python virtualenv called "ml_learn"
+#  with the keras and jax python packages installed
+#You can set this up with 
+#
+# library(reticulate)
+# install_python("3.12:latest")
+# virtualenv_create("ml_learn",packages=c("keras","jax"))
+#
+# In fact this should not be necessary. Just installing
+#  the keras3 R package and running
+#
+# install_keras(backend="jax")
+#
+# should be enough. And you won't then need to choose
+# a virtualenv below. But somehow that didn't work for me
+
+keras3::use_backend("jax")
+keras3::use_virtualenv("ml_learn")
+```
+
+```{r}
+# Set random seed to ensure reproducibility
+keras3::set_random_seed(100)
+```
+
+```{r}
+# Fetch the data from the UCI ML repo over the net
+adult <- ucimlrepo::fetch_ucirepo("adult")
+```
+
+```{r}
+# Extract the data frame with all the variables
+raw_df <- adult$data$original
+```
+
+```{r}
+raw_df |> glimpse()
+```
+
+## Preprocessing
+
+```{r}
+raw_df |> count(income)
+```
+
+```{r}
+raw_df <- raw_df |> 
+  mutate(income = case_when(
+    income == "<=50K." ~ "<=50K",
+    income == ">50K." ~ ">50K",
+    TRUE ~ income
+  ))
+raw_df |> count(income)
+```
+
+```{r}
+raw_df <- raw_df |> 
+  select(-`capital-gain`,-`capital-loss`)
+```
+
+```{r}
+# Test-training split. `initial_split` returns an object
+#  from which we extract the test and training dataframes
+my_split <- initial_split(raw_df,0.8)
+my_train <- training(my_split)
+my_test <- testing(my_split)
+```
+
+```{r}
+# The preprocessing step
+#
+# Normalize all numeric predictors
+# One-hot encode (make dummies) for all categorical variables
+# Handle correctly categorical values in new
+#  data which are not in the training set
+
+my_recipe <- recipe(income~.,data=my_train) |> 
+  step_normalize(all_numeric_predictors()) |> 
+  step_novel(all_nominal_predictors()) |> 
+  step_dummy(all_nominal_predictors(),one_hot=TRUE)
+```
+
+```{r}
+# Prep the recipe and apply it to train and text data
+my_prep <- my_recipe |> prep()
+my_train_mod <- my_prep |> bake(my_train)
+my_test_mod <- my_prep |> bake(my_test)
+```
+
+```{r}
+# Define function to convert income labels to and from num
+inc_to_num <- function(x){
+  as.numeric(x==">50K")
+}
+num_to_inc <- function(x){
+  factor(if_else(x==1,">50K","<=50K"),
+         levels=c("<=50K",">50K"))
+}
+```
+
+```{r}
+# Separate predictors and outcome
+# Convert outcome to numeric
+X_train <-  my_train_mod |> select(-income)
+y_train <- my_train_mod |> pull(income) |> inc_to_num()
+
+X_test <-  my_test_mod |> select(-income)
+y_test <- my_test_mod |>  pull(income) |> inc_to_num()
+```
+
+## Simple model
+
+This is a model equivalent to a logit model.
+
+```{r}
+input_dim = ncol(X_train)
+```
+
+### Model defintion
+
+```{r}
+model_simple <- keras_model_sequential(input_shape=input_dim) |> 
+  layer_dense(units=1,activation="sigmoid")
+summary(model_simple)
+```
+
+### Compilation
+
+```{r}
+model_simple |> compile(
+  loss = "binary_crossentropy",
+  optimizer = "adam",
+  metrics = c('accuracy'),
+)
+```
+
+### Fitting 
+
+```{r}
+history_simple <- model_simple |> fit(
+  as.matrix(X_train), y_train,
+  epochs = 20, batch_size = 512,
+  validation_split = 0.2
+)
+```
+
+### Evaluation
+
+```{r}
+model_simple |> 
+  evaluate(as.matrix(X_test),y_test)
+```
+
+## Multilayer model
+
+A multilayer perceptron with two layers and dropout. You should experiment with architecture and parameters.
+
+### Model definition
+
+```{r}
+model_mlp <- keras_model_sequential(input_shape=input_dim) |> 
+  layer_dense(units=128,activation='relu') |>
+  layer_dense(units=8,activation='relu') |>
+  layer_dense(units=8,activation='relu') |>
+  layer_dense(units=1,activation="sigmoid")
+model_mlp |> compile(
+  loss = "binary_crossentropy",
+  optimizer = "adam",
+  metrics = c('accuracy'),
+)
+summary(model_mlp)
+```
+
+### Fitting
+
+We use early stopping to stop the training when validation loss stops improving.
+
+```{r}
+early_stopping <- callback_early_stopping(
+      monitor = "val_loss",
+      patience = 5,
+      restore_best_weights=TRUE
+    )
+history_mlp <- model_mlp |> fit(
+  as.matrix(X_train), y_train,
+  epochs = 50, batch_size = 512,
+  validation_split = 0.2,
+  callbacks = list(early_stopping)
+)
+```
+
+### Evaluation
+
+```{r}
+model_mlp |> 
+  evaluate(as.matrix(X_test),y_test)
+```
+
+## Evaluation with `yardstick`
+
+### Prepare the evaluation dataframes
+
+```{r}
+# Compute the predicted probabilities and the predicted class
+#  from the model
+y_test_prob_mlp <- model_mlp |> 
+  predict(as.matrix(X_test)) 
+y_test_class_mlp <- as.numeric(y_test_prob_mlp[,1] > 0.5)
+y_test_prob_simple <- model_simple |> 
+  predict(as.matrix(X_test)) 
+y_test_class_simple <- as.numeric(y_test_prob_simple[,1] > 0.5)
+```
+
+```{r}
+# Create dataframes
+eval_df_mlp <- tibble(truth=num_to_inc(y_test),
+                      prob1 = 1-y_test_prob_mlp[,1],
+                     estimate=num_to_inc(y_test_class_mlp))
+
+eval_df_simple <- tibble(truth=num_to_inc(y_test),
+                         prob1 = 1-y_test_prob_simple[,1],
+                        estimate=num_to_inc(y_test_class_simple))
+```
+
+### Confusion matrices
+
+#### Simple model
+
+```{r}
+conf_mat(eval_df_simple,truth="truth",estimate="estimate")
+```
+
+#### Complex model
+
+```{r}
+conf_mat(eval_df_mlp,truth="truth",estimate="estimate")
+```
+
+## Recall
+
+The proportion of \<=50K who are identified as greater \<=50K
+
+#### Simple model
+
+```{r}
+recall(eval_df_simple,truth,estimate) |> pull(.estimate)
+```
+
+#### Complex model
+
+```{r}
+recall(eval_df_mlp,truth,estimate) |> pull(.estimate)
+```
+
+### Precision
+
+#### Simple model
+
+Percentage of predicted \<=50K who are actually \<=50K
+
+```{r}
+precision(eval_df_simple,truth,estimate) |> 
+  pull(.estimate)
+```
+
+#### Complex model
+
+```{r}
+precision(eval_df_mlp,truth,estimate)|> 
+  pull(.estimate)
+```
+
+### F-measure
+
+Harmonic mean of precision and recall
+
+#### Simple model
+
+```{r}
+f_meas(eval_df_simple,truth,estimate) |> 
+  pull(.estimate)
+```
+
+#### Complex model
+
+```{r}
+f_meas(eval_df_mlp,truth,estimate) |> 
+  pull(.estimate)
+```
+
+### ROC curve
+
+Above, we choose our predicted class based on a threshold probability of 0.5. But suppose we chose some other threshold probability. As we lowered the probability, more cases would get put into the second class, both rightly and wrongly. By moving the threshold from 0 to 1 we trace out a frontier of true positive rate vs. false positive rate. A curve which is *outward* of another indicates a better model. Pure random guessing gives a 45-degree line.
+
+-   Specificity: probability of a true positive (\<=50K classed as \<=50K)
+
+-   Sensitivity: probability of a true negative (\>50K classed as \>=50K)
+
+```{r}
+theme_set(theme_minimal())
+roc_simple <- roc_curve(eval_df_simple,truth,prob1) 
+roc_simple$model="simple"
+roc_mlp <- roc_curve(eval_df_mlp,truth,prob1) 
+roc_mlp$model="complex"
+
+bind_rows(roc_simple,roc_mlp) |> 
+  ggplot() +
+  geom_path(aes(1-specificity,sensitivity,col=model)) +
+  geom_abline(lty=3)
+```

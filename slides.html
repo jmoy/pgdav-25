@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="slides_files/libs/clipboard/clipboard.min.js"></script>
+<script src="slides_files/libs/quarto-html/tabby.min.js"></script>
+<script src="slides_files/libs/quarto-html/popper.min.js"></script>
+<script src="slides_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="slides_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="slides_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.40">
+
+  <meta name="author" content="Jyotirmoy Bhattacharya">
+  <title>Neural Networks with Keras</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="slides_files/libs/revealjs/dist/theme/quarto-423d414d36ce366a9d05f36d06304417.css">
+  <link href="slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="slides_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="slides_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Neural Networks with Keras</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Jyotirmoy Bhattacharya 
+</div>
+</div>
+</div>
+
+</section>
+<section id="agenda" class="slide level2 scrollable">
+<h2>Agenda</h2>
+<ol type="1">
+<li>The Supervised Machine Learning Framework</li>
+<li>ML vs.&nbsp;Econometrics: Key Differences</li>
+<li>Optimization: Gradient Descent</li>
+<li>The Machine Learning Workflow</li>
+<li>Neural Networks: The Basics</li>
+<li>Building Blocks: Neurons and Architectures</li>
+<li>Activation Functions</li>
+<li>Introducing Keras 3 in R</li>
+<li>The <code>tidymodels</code> Ecosystem</li>
+<li>Data Preprocessing with <code>recipes</code></li>
+<li>Building Models with Keras &amp; <code>tidymodels</code></li>
+<li>Evaluation with <code>yardstick</code></li>
+<li>Examples</li>
+</ol>
+</section>
+<section id="the-supervised-machine-learning-framework" class="slide level2" data-background-color="#F0E442">
+<h2>The Supervised Machine Learning Framework</h2>
+</section>
+<section id="the-goal-learning-from-data" class="slide level2">
+<h2>The Goal: Learning from Data</h2>
+<ul>
+<li>Knowing a set of input features (predictors, independent variables) <span class="math inline">\(X\)</span> predict an output (target, dependent variable) <span class="math inline">\(Y\)</span>.</li>
+<li><strong>Supervised Learning:</strong> Learn from a dataset of labeled examples <span class="math inline">\((x_i, y_i)\)</span>, where <span class="math inline">\(i = 1, ..., N\)</span>.</li>
+<li>Examples:
+<ul>
+<li>Predicting income (<span class="math inline">\(Y\)</span>) based on education, age, occupation (<span class="math inline">\(X\)</span>).</li>
+<li>Classifying emails as spam (<span class="math inline">\(Y=1\)</span>) or not spam (<span class="math inline">\(Y=0\)</span>) based on email content (<span class="math inline">\(X\)</span>).</li>
+<li>Forecasting GDP growth (<span class="math inline">\(Y\)</span>) based on past economic indicators (<span class="math inline">\(X\)</span>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="the-data-generating-process-dgp" class="slide level2">
+<h2>The Data Generating Process (DGP)</h2>
+<ul>
+<li>Assumption: A probability distribution <span class="math inline">\(P(X, Y)\)</span> from which our observed data points <span class="math inline">\((x_i, y_i)\)</span> are drawn.</li>
+<li>Often assumed to be <strong>independent and identically distributed (i.i.d.)</strong>. Each data point is drawn independently from the same distribution.</li>
+<li>Find a function <span class="math inline">\(f(X)\)</span> that predicts <span class="math inline">\(Y\)</span> well, on <em>new, unseen</em> data drawn from the same <span class="math inline">\(P(X, Y)\)</span>.</li>
+</ul>
+</section>
+<section id="parametric-decision-rules-models" class="slide level2">
+<h2>Parametric Decision Rules (Models)</h2>
+<ul>
+<li>We restrict our search to a specific <em>family</em> of functions, <span class="math inline">\(f(X; \theta)\)</span> parameterized by a set of parameters <span class="math inline">\(\theta\)</span>.</li>
+<li>Examples:
+<ul>
+<li>Linear Regression: <span class="math inline">\(f(X; \beta) = X\beta\)</span> (where <span class="math inline">\(\theta = \beta\)</span>)</li>
+<li>Logit Model: <span class="math inline">\(P(Y=1|X; \beta) = \frac{1}{1 + e^{-X\beta}}\)</span> (where <span class="math inline">\(\theta = \beta\)</span>)</li>
+<li>Neural Networks</li>
+</ul></li>
+</ul>
+</section>
+<section id="measuring-goodness-the-loss-function" class="slide level2">
+<h2>Measuring “Goodness”: The Loss Function</h2>
+<ul>
+<li>The <strong>Loss Function</strong>, <span class="math inline">\(L(y_{true}, y_{pred})\)</span>, which measures the “cost” or “error” of predicting <span class="math inline">\(y_{pred} = f(x; \theta)\)</span> when the true value is <span class="math inline">\(y_{true}\)</span>.</li>
+<li>Desirable properties: <span class="math inline">\(L \ge 0\)</span>, and <span class="math inline">\(L=0\)</span> if <span class="math inline">\(y_{true} = y_{pred}\)</span>.</li>
+<li>Examples:
+<ul>
+<li>Squared Error Loss (Regression): <span class="math inline">\(L(y_{true}, y_{pred}) = (y_{true} - y_{pred})^2\)</span></li>
+<li>Absolute Error Loss (Regression): <span class="math inline">\(L(y_{true}, y_{pred}) = |y_{true} - y_{pred}|\)</span></li>
+<li>0/1 Loss (Classification): <span class="math inline">\(L(y_{true}, y_{pred}) = \mathbb{I}(y_{true} \neq y_{pred})\)</span> (Indicator function)</li>
+<li>Log Loss / Binary Cross-Entropy (Classification): (We’ll see this later)</li>
+</ul></li>
+</ul>
+</section>
+<section id="finding-the-best-parameters-risk-minimization" class="slide level2">
+<h2>Finding the Best Parameters: Risk Minimization</h2>
+<ul>
+<li>Ideal Goal: Find <span class="math inline">\(\theta\)</span> that minimizes the <strong>Expected Risk</strong> (or true error) over the entire data distribution <span class="math inline">\(P(X, Y)\)</span>: <span class="math display">\[R(\theta) = \mathbb{E}_{(X,Y) \sim P} [L(Y, f(X; \theta))]\]</span></li>
+<li>Problem: We don’t know <span class="math inline">\(P(X, Y)\)</span>! We only have our sample data <span class="math inline">\(\{(x_i, y_i)\}_{i=1}^N\)</span>.</li>
+</ul>
+</section>
+<section id="empirical-risk-minimization-erm" class="slide level2">
+<h2>Empirical Risk Minimization (ERM)</h2>
+<ul>
+<li>Strategy: Minimize the average loss <em>on the data we have</em>. This is the <strong>Empirical Risk</strong>: <span class="math display">\[\hat{R}(\theta) = \frac{1}{N} \sum_{i=1}^N L(y_i, f(x_i; \theta))\]</span></li>
+<li>We find the parameters <span class="math inline">\(\hat{\theta}\)</span> that minimize this empirical risk: <span class="math display">\[\hat{\theta}_{ERM} = \arg \min_{\theta} \hat{R}(\theta)\]</span></li>
+<li>Hope: If <span class="math inline">\(N\)</span> is large enough, <span class="math inline">\(\hat{R}(\theta)\)</span> should be close to <span class="math inline">\(R(\theta)\)</span>, and <span class="math inline">\(\hat{\theta}_{ERM}\)</span> should yield a function <span class="math inline">\(f(X; \hat{\theta}_{ERM})\)</span> that performs well on unseen data.</li>
+</ul>
+</section>
+<section id="example-linear-regression-ols" class="slide level2">
+<h2>Example: Linear Regression &amp; OLS</h2>
+<ul>
+<li>Model: <span class="math inline">\(f(X; \beta) = X\beta\)</span></li>
+<li>Loss Function: Squared Error Loss <span class="math inline">\(L(y, \hat{y}) = (y - \hat{y})^2\)</span></li>
+<li>Empirical Risk: <span class="math inline">\(\hat{R}(\beta) = \frac{1}{N} \sum_{i=1}^N (y_i - x_i\beta)^2\)</span> (Mean Squared Error - MSE)</li>
+<li>Minimizing this <span class="math inline">\(\hat{R}(\beta)\)</span> is equivalent to minimizing the Sum of Squared Residuals (SSR): <span class="math inline">\(\sum_{i=1}^N (y_i - x_i\beta)^2\)</span>.</li>
+<li>The solution <span class="math inline">\(\hat{\beta}_{OLS} = (X'X)^{-1}X'Y\)</span> is exactly the ERM solution for linear models under squared error loss!</li>
+</ul>
+</section>
+<section id="ml-vs.-econometrics" class="slide level2" data-background-color="#E69F00">
+<h2>ML vs.&nbsp;Econometrics</h2>
+</section>
+<section id="shared-roots-different-emphasis" class="slide level2">
+<h2>Shared Roots, Different Emphasis</h2>
+<ul>
+<li>Both fields use data to learn about relationships.</li>
+<li>Both often use parametric models and optimization.</li>
+<li>Econometrics: Strong focus on <strong>causal inference</strong>, <strong>interpretability</strong>, <strong>statistical significance</strong>, and <strong>asymptotic theory</strong>. Often uses simpler, theory-driven models.</li>
+<li>Machine Learning: Strong focus on <strong>predictive accuracy</strong> on unseen data. Often uses highly flexible, complex models (“black boxes”). Less emphasis on asymptotics, more on finite-sample performance (generalization).</li>
+</ul>
+</section>
+<section id="functional-form-flexibility" class="slide level2">
+<h2>Functional Form Flexibility</h2>
+<ul>
+<li>Econometrics: Often relies on linear models or specific non-linear forms derived from economic theory (e.g., Logit/Probit from utility maximization). Parsimony is valued.</li>
+<li>Machine Learning: Embraces highly flexible functional forms (e.g., deep neural networks, random forests, gradient boosting). Can potentially capture very complex, non-linear relationships <em>without</em> prior theory. The cost can be interpretability.</li>
+</ul>
+</section>
+<section id="theory-asymptotic-vs.-finite-sample" class="slide level2">
+<h2>Theory: Asymptotic vs.&nbsp;Finite Sample</h2>
+<ul>
+<li>Econometrics: Relies heavily on asymptotic theory (what happens as <span class="math inline">\(N \to \infty\)</span>) to justify properties of estimators (consistency, asymptotic normality) and inference (t-tests, F-tests).</li>
+<li>Machine Learning: More focused on <strong>generalization error</strong> (performance on unseen data) in finite samples. Concepts like the bias-variance trade-off are central. Cross-validation is a key tool for estimating generalization performance.</li>
+</ul>
+</section>
+<section id="prediction-vs.-causality" class="slide level2">
+<h2>Prediction vs.&nbsp;Causality</h2>
+<ul>
+<li><strong>Prediction:</strong> Goal is to build a model <span class="math inline">\(f(X)\)</span> that accurately predicts <span class="math inline">\(Y\)</span> for new <span class="math inline">\(X\)</span>. We don’t necessarily care <em>why</em> the prediction works, only that it does. (ML focus)
+<ul>
+<li>Example: Predicting stock prices.</li>
+</ul></li>
+<li><strong>Causal Inference:</strong> Goal is to understand the effect of changing a specific variable <span class="math inline">\(X_j\)</span> on <span class="math inline">\(Y\)</span>, holding other factors constant (<span class="math inline">\(\frac{\partial Y}{\partial X_j}\)</span>). Requires stronger assumptions (e.g., exogeneity, identification strategies). (Econometrics focus)
+<ul>
+<li>Example: Estimating the effect of education on wages.</li>
+</ul></li>
+<li>ML tools <em>can</em> be used for causal inference (e.g., Double Machine Learning), but prediction is the primary goal in standard ML.</li>
+</ul>
+</section>
+<section id="optimization-gradient-descent" class="slide level2" data-background-color="#56B4E9">
+<h2>Optimization: Gradient Descent</h2>
+</section>
+<section id="finding-the-minimum" class="slide level2">
+<h2>Finding the Minimum</h2>
+<ul>
+<li>We want to find <span class="math inline">\(\hat{\theta} = \arg \min_{\theta} \hat{R}(\theta)\)</span>.</li>
+<li>For OLS, we had a closed-form solution.</li>
+<li>For many complex models (like neural networks) or loss functions, a closed-form solution doesn’t exist or is computationally infeasible.</li>
+<li>We need an <strong>iterative optimization algorithm</strong>. The most common is <strong>Gradient Descent</strong>.</li>
+</ul>
+</section>
+<section id="gradient-descent-the-intuition" class="slide level2">
+<h2>Gradient Descent: The Intuition</h2>
+<ul>
+<li>The negative gradient of the empirical risk <span class="math inline">\(\hat{R}(\theta)\)</span> with respect to <span class="math inline">\(\theta\)</span> give the direction of steepest descent.</li>
+<li>Taking <em>small</em> steps in this direction will reduce empirical risk.</li>
+<li>If we keep doing that we will reach a minimum.</li>
+<li>Caveats!</li>
+</ul>
+</section>
+<section id="gradient-descent-the-algorithm" class="slide level2 scrollable">
+<h2>Gradient Descent: The Algorithm</h2>
+<ol type="1">
+<li>Initialize parameters <span class="math inline">\(\theta^{(0)}\)</span>.</li>
+<li>For <span class="math inline">\(t = 0, 1, 2, ...\)</span> until convergence:
+<ol type="a">
+<li>Compute the gradient of the empirical risk with respect to the parameters, evaluated at the current parameters <span class="math inline">\(\theta^{(t)}\)</span>: <span class="math display">\[g^{(t)} = \nabla_{\theta} \hat{R}(\theta^{(t)}) = \frac{1}{N} \sum_{i=1}^N \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))\]</span></li>
+<li>Update the parameters by taking a step in the negative gradient direction: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - \eta g^{(t)}\]</span></li>
+</ol></li>
+</ol>
+<ul>
+<li><span class="math inline">\(\eta\)</span> is the <strong>learning rate</strong>: a hyperparameter controlling the step size. Too small <span class="math inline">\(\implies\)</span> slow convergence. Too large <span class="math inline">\(\implies\)</span> overshoot the minimum or diverge.</li>
+</ul>
+</section>
+<section id="the-gradient-calculation-challenge" class="slide level2">
+<h2>The Gradient Calculation Challenge</h2>
+<ul>
+<li>Calculating the gradient <span class="math inline">\(g^{(t)}\)</span> requires summing the gradients for <em>every single data point</em> in the training set (<span class="math inline">\(N\)</span> points). <span class="math display">\[g^{(t)} = \frac{1}{N} \sum_{i=1}^N \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))\]</span></li>
+<li>If <span class="math inline">\(N\)</span> is large (millions or billions), calculating the full gradient at each step is computationally very expensive!</li>
+</ul>
+</section>
+<section id="stochastic-gradient-descent-sgd" class="slide level2">
+<h2>Stochastic Gradient Descent (SGD)</h2>
+<ul>
+<li>Idea: For empirical risk the gradient over the entire dataset is an average of the gradient at each observation. Approximate this population average by a sample average on a small, randomly chosen subset of the data, called a <strong>mini-batch</strong>.</li>
+<li>Let <span class="math inline">\(\mathcal{B}_t\)</span> be a randomly selected mini-batch of size <span class="math inline">\(B\)</span> (the <strong>batch size</strong>) at step <span class="math inline">\(t\)</span>.</li>
+<li>Approximate the true gradient using only the mini-batch: <span class="math display">\[\tilde{g}^{(t)} = \frac{1}{B} \sum_{i \in \mathcal{B}_t} \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))\]</span></li>
+<li>Update rule: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - \eta \tilde{g}^{(t)}\]</span></li>
+</ul>
+</section>
+<section id="sgd-properties" class="slide level2">
+<h2>SGD: Properties</h2>
+<ul>
+<li><strong>Faster Updates:</strong> Each update is much faster as it uses only <span class="math inline">\(B \ll N\)</span> data points.</li>
+<li><strong>Noisy Gradient:</strong> The gradient estimate <span class="math inline">\(\tilde{g}^{(t)}\)</span> is noisy (it varies depending on the random batch). This noise can sometimes help escape shallow local minima.</li>
+<li><strong>Convergence:</strong> Converges “in expectation” under certain conditions. The path to the minimum is much more erratic than full batch gradient descent.</li>
+<li><strong>Epoch:</strong> One full pass through the <em>entire</em> training dataset is called an <strong>epoch</strong>. If the dataset has <span class="math inline">\(N\)</span> samples and the batch size is <span class="math inline">\(B\)</span>, one epoch consists of approximately <span class="math inline">\(N/B\)</span> SGD updates (or steps/iterations).</li>
+</ul>
+</section>
+<section id="sgd-variants" class="slide level2">
+<h2>SGD Variants</h2>
+<ul>
+<li>Many variations exist to improve SGD’s convergence speed and stability:</li>
+<li>An algorithm know as <em>Adam</em> is currently the default choice.</li>
+<li>Keras allows you to easily choose these optimizers.</li>
+</ul>
+</section>
+<section id="the-machine-learning-workflow" class="slide level2" data-background-color="#009E73">
+<h2>The Machine Learning Workflow</h2>
+</section>
+<section id="overfitting-the-central-problem" class="slide level2">
+<h2>Overfitting: The Central Problem</h2>
+<ul>
+<li>ERM minimizes loss on the <em>training data</em>.</li>
+<li>But our real goal is to minimize loss on <em>unseen data</em> (generalization).</li>
+<li>A model can become too complex and fit the noise or specific quirks of the training data perfectly.</li>
+<li>This leads to <strong>overfitting</strong>: Low training error but high error on new data.</li>
+</ul>
+<center>
+<em>(Insert a conceptual graph showing training error decreasing while validation error decreases then increases)</em>
+</center>
+</section>
+<section id="the-traintest-split" class="slide level2 scrollable">
+<h2>The Train/Test Split</h2>
+<ul>
+<li>Fundamental Idea: <strong>Never evaluate your final model on the data used to train it.</strong></li>
+<li>Split the initial dataset into two (or three) parts:
+<ol type="1">
+<li><strong>Training Set:</strong> Used to fit the model parameters (<span class="math inline">\(\theta\)</span>) using (S)GD. (~60-80% of data)</li>
+<li><strong>Test Set:</strong> Held out completely. Used <em>only once</em> at the very end to estimate the final model’s performance on unseen data (generalization error). (~20-40% of data)</li>
+</ol></li>
+</ul>
+</section>
+<section id="the-trainvalidationtest-split" class="slide level2 scrollable">
+<h2>The Train/Validation/Test Split</h2>
+<ul>
+<li>Often, we need to tune <strong>hyperparameters</strong> (e.g., learning rate <span class="math inline">\(\eta\)</span>, network architecture, regularization strength).</li>
+<li>We cannot use the test set for this tuning, because we would implicitly be fitting the hyperparameters to the test set, leading to an overly optimistic performance estimate.</li>
+<li>Solution: Create a third split:
+<ol type="1">
+<li><strong>Training Set:</strong> Used to fit model parameters <span class="math inline">\(\theta\)</span>. (~60%)</li>
+<li><strong>Validation Set (or Development Set):</strong> Used to:
+<ul>
+<li>Tune hyperparameters.</li>
+<li>Make decisions about model architecture.</li>
+<li>Decide when to stop training (early stopping). (~20%)</li>
+</ul></li>
+<li><strong>Test Set:</strong> Used <em>only</em> for the final performance estimate. (~20%)</li>
+</ol></li>
+</ul>
+</section>
+<section id="the-typical-ml-workflow" class="slide level2 scrollable">
+<h2>The Typical ML Workflow</h2>
+<ol type="1">
+<li><strong>Data Preparation:</strong>
+<ul>
+<li>Load data.</li>
+<li>Clean data (handle missing values, outliers).</li>
+<li>Feature Engineering (create new predictors).</li>
+<li>Preprocessing (scaling/normalization, encoding categoricals).</li>
+</ul></li>
+<li><strong>Data Splitting:</strong> Divide into Training, Validation, and Test sets.</li>
+<li><strong>Model Training (Estimation):</strong>
+<ul>
+<li>Choose a model architecture/family.</li>
+<li>Choose hyperparameters (or a range to search over).</li>
+<li>Train the model(s) on the <strong>Training Set</strong>, often using the <strong>Validation Set</strong> to monitor progress (e.g., for early stopping) or tune hyperparameters (e.g., using cross-validation within the training set).</li>
+</ul></li>
+<li><strong>Model Evaluation:</strong>
+<ul>
+<li>Evaluate the <em>final, chosen</em> model on the <strong>Test Set</strong> using relevant metrics (e.g., accuracy, MSE, AUC). This gives an unbiased estimate of generalization performance.</li>
+</ul></li>
+<li><strong>Deployment (Optional):</strong> Use the trained model to make predictions on new, unseen data.</li>
+</ol>
+</section>
+<section id="neural-networks-the-basics" class="slide level2" data-background-color="#CC79A7">
+<h2>Neural Networks: The Basics</h2>
+</section>
+<section id="what-are-neural-networks-nns" class="slide level2">
+<h2>What are Neural Networks (NNs)?</h2>
+<ul>
+<li>Inspired (loosely) by the structure of brains.</li>
+<li>Essentially, they are complex, parameterized functions <span class="math inline">\(f(X; \theta)\)</span> built by composing many simpler computational units (neurons) together in a network structure.</li>
+<li>They are <strong>computation graphs</strong>: data flows in, undergoes a series of transformations defined by the network’s structure and parameters, and an output is produced.</li>
+<li>The parameters <span class="math inline">\(\theta\)</span> (weights and biases) are learned from data using ERM and gradient descent (usually SGD).</li>
+</ul>
+</section>
+<section id="why-use-neural-networks" class="slide level2">
+<h2>Why Use Neural Networks?</h2>
+<ul>
+<li>Universal Approximators. (Not really a big deal) NNs (with certain properties, like at least one hidden layer and a non-linear activation function) can theoretically approximate <em>any</em> continuous function to an arbitrary degree of accuracy, given enough neurons.</li>
+<li>Feature Learning.</li>
+<li>Fast Hardware.</li>
+<li>It works! (If you have sufficient data)</li>
+</ul>
+</section>
+<section id="units-and-architectures" class="slide level2" data-background-color="#D55E00">
+<h2>Units and Architectures</h2>
+</section>
+<section id="the-unit-neuron" class="slide level2">
+<h2>The Unit (Neuron)</h2>
+<ul>
+<li>The basic building block.</li>
+<li>Inputs: <span class="math inline">\(x_1, x_2, ..., x_d\)</span>.</li>
+<li>Output: <span class="math inline">\(y = g(\sum_{j=1}^d w_j x_j + b)\)</span>
+<ul>
+<li><span class="math inline">\(w_j\)</span>: <strong>Weights</strong> (parameters to be learned)</li>
+<li><span class="math inline">\(b\)</span>: <strong>Bias</strong> (parameter to be learned)</li>
+<li><span class="math inline">\(g(\cdot)\)</span>: <strong>Activation Function</strong> - introduces non-linearity (crucial!).</li>
+</ul></li>
+</ul>
+</section>
+<section class="slide level2">
+
+</section>
+<section id="network-architecture-layers" class="slide level2 scrollable">
+<h2>Network Architecture: Layers</h2>
+<ul>
+<li>Neurons are typically organized into <strong>layers</strong>:
+<ol type="1">
+<li><strong>Input Layer:</strong> Represents the raw input features <span class="math inline">\(X\)</span>. Not really computational neurons, just passes data through.</li>
+<li><strong>Hidden Layers:</strong> One or more layers of neurons between the input and output. These perform intermediate computations and learn data representations. This is where the “depth” in “deep learning” comes from.</li>
+<li><strong>Output Layer:</strong> Produces the final prediction(s). The number of neurons and their activation function depend on the task (regression vs.&nbsp;classification).</li>
+</ol></li>
+</ul>
+<center>
+In a <em>fully connected</em> or <em>dense</em> layer each neuron in the layer is connected to <em>every</em> neuron in the <em>previous</em> layer.
+</center>
+</section>
+<section id="feedforward-networks-ffn" class="slide level2">
+<h2>Feedforward Networks (FFN)</h2>
+<ul>
+<li>The simplest and most common architecture.</li>
+<li>Information flows in one direction: from input layer, through hidden layers (if any), to output layer.</li>
+<li>No cycles or loops in the connections.</li>
+<li><strong>Multilayer Perceptron (MLP):</strong> A feedforward network with one or more hidden layers.</li>
+</ul>
+</section>
+<section id="activation-functions" class="slide level2" data-background-color="#44AA99">
+<h2>Activation Functions</h2>
+</section>
+<section id="the-role-of-activation-functions" class="slide level2">
+<h2>The Role of Activation Functions</h2>
+<ul>
+<li>Applied to the output of the weighted sum (<span class="math inline">\(z = \sum w_j x_j + b\)</span>) in each neuron: <span class="math inline">\(y = g(z)\)</span>.</li>
+<li><strong>Crucial Role:</strong> Introduce <strong>non-linearity</strong> into the network.</li>
+</ul>
+</section>
+<section id="common-activation-functions" class="slide level2 scrollable">
+<h2>Common Activation Functions</h2>
+<ol type="1">
+<li><strong>None / Linear / Identity:</strong> <span class="math inline">\(g(z) = z\)</span></li>
+<li><strong>Rectified Linear Unit (ReLU):</strong> <span class="math inline">\(g(z) = \max(0, z)\)</span>
+<ul>
+<li>Outputs the input directly if positive, otherwise outputs zero.</li>
+</ul></li>
+<li><strong>Sigmoid (Logistic):</strong> <span class="math inline">\(g(z) = \frac{1}{1 + e^{-z}}\)</span>
+<ul>
+<li>Squeezes the input into the range (0, 1).</li>
+<li>Historically popular, often used in the <strong>output layer</strong> for <strong>binary classification</strong> problems (output interpreted as probability).</li>
+</ul></li>
+</ol>
+</section>
+<section id="activation-functions-softmax" class="slide level2 scrollable">
+<h2>Activation Functions: Softmax</h2>
+<ol start="4" type="1">
+<li><strong>Softmax:</strong> (Applied to a <em>vector</em> of outputs <span class="math inline">\(z = [z_1, ..., z_K]\)</span> in the final layer) <span class="math display">\[g(z)_j = \frac{e^{z_j}}{\sum_{k=1}^K e^{z_k}} \quad \text{for } j=1, ..., K\]</span>
+<ul>
+<li>Takes a vector of arbitrary real values and transforms it into a probability distribution (outputs are non-negative and sum to 1).</li>
+<li>Used in the <strong>output layer</strong> for <strong>multi-class classification</strong> problems (where each input belongs to one of <span class="math inline">\(K\)</span> classes). The output <span class="math inline">\(g(z)_j\)</span> is interpreted as the probability that the input belongs to class <span class="math inline">\(j\)</span>.</li>
+</ul></li>
+</ol>
+</section>
+<section id="introducing-keras-3-in-r" class="slide level2" data-background-color="#88CCEE">
+<h2>Introducing Keras 3 in R</h2>
+</section>
+<section id="what-is-keras" class="slide level2">
+<h2>What is Keras?</h2>
+<ul>
+<li>Keras is a high-level API (Application Programming Interface) for building and training neural networks.</li>
+<li>Focuses on user-friendliness, modularity, and extensibility.</li>
+<li>Allows for fast prototyping and experimentation.</li>
+<li>Originally developed for Python, but has excellent R integration via the <code>keras3</code> R package.</li>
+<li>Actual computation is delegated to a <strong>backend</strong>: TensorFlow, PyTorch or JAX.</li>
+</ul>
+</section>
+<section id="setting-up-keras-in-r" class="slide level2">
+<h2>Setting up Keras in R</h2>
+<ul>
+<li>Install the <code>keras3</code> R package: <code>install.packages("keras")</code></li>
+<li>Install Keras and a backend (e.g., TensorFlow, JAX): <code>keras::install_keras()</code>
+<ul>
+<li>This handles the Python dependencies via <code>reticulate</code>.</li>
+</ul></li>
+<li>Configure the backend</li>
+<li>Start modelling!</li>
+<li>Finicky in reality to get everything working</li>
+</ul>
+</section>
+<section id="the-tidymodels-ecosystem" class="slide level2" data-background-color="#DDCC77">
+<h2>The <code>tidymodels</code> Ecosystem</h2>
+</section>
+<section id="tidymodels" class="slide level2">
+<h2><code>tidymodels</code></h2>
+<ul>
+<li>Ecosystem for the data modeling workflow in R
+<ul>
+<li><code>rsample</code>: Data splitting (train/test, cross-validation).</li>
+<li><code>recipes</code>: Feature engineering and preprocessing.</li>
+<li><code>parsnip</code>: Unified interface for specifying models (including Keras).</li>
+<li><code>workflows</code>: Bundling preprocessing and models together.</li>
+<li><code>tune</code>: Hyperparameter tuning.</li>
+<li><code>yardstick</code>: Model evaluation metrics.</li>
+</ul></li>
+</ul>
+</section>
+<section id="why-tidymodels" class="slide level2">
+<h2>Why <code>tidymodels</code>?</h2>
+<ul>
+<li><strong>Consistency:</strong> Provides a common syntax and workflow for many different model types (linear models, trees, SVMs, NNs, etc.).</li>
+<li><strong>Tidyverse Integration:</strong> Works seamlessly with pipes (<code>%&gt;%</code> or <code>|&gt;</code>) and <code>dplyr</code>/<code>ggplot2</code>.</li>
+<li><strong>Modularity:</strong> Combines specialized packages for specific tasks (splitting, preprocessing, tuning, evaluation).</li>
+<li><strong>Best Practices:</strong> Encourages sound ML practices like proper data splitting and resampling.</li>
+</ul>
+</section>
+<section id="integrating-keras-with-tidymodels" class="slide level2">
+<h2>Integrating Keras with <code>tidymodels</code></h2>
+<ul>
+<li><code>tidymodels</code> provides an interface to use Keras models within its framework. But only a specific NN architecture.</li>
+<li>We will directly work with Keras.</li>
+<li>Use <code>tidymodels</code> libraries for pre-processing and evaluation.</li>
+</ul>
+</section>
+<section id="data-preprocessing-with-recipes" class="slide level2" data-background-color="#999933">
+<h2>Data Preprocessing with <code>recipes</code></h2>
+</section>
+<section id="the-need-for-preprocessing" class="slide level2">
+<h2>The Need for Preprocessing</h2>
+<ul>
+<li>Neural networks (and many other ML models) are sensitive to the scale and format of input data.</li>
+<li>Common preprocessing steps:
+<ul>
+<li><strong>Scaling/Normalization:</strong> Bringing numerical features to a similar scale (e.g., mean 0, std dev 1) often helps gradient descent converge faster and perform better.</li>
+<li><strong>Encoding Categorical Features:</strong> NNs require numerical inputs. Categorical variables need to be converted (e.g., one-hot encoding, dummy variables).</li>
+<li><strong>Handling Missing Values:</strong> Imputing missing data (e.g., with mean, median, or a model).</li>
+<li><strong>Feature Engineering:</strong> Creating new, potentially more informative features from existing ones.</li>
+</ul></li>
+</ul>
+</section>
+<section id="recipes-a-preprocessing-blueprint" class="slide level2 scrollable">
+<h2><code>recipes</code>: A Preprocessing Blueprint</h2>
+<ul>
+<li>A structured way to define a sequence of preprocessing steps.</li>
+</ul>
+<ol type="1">
+<li><strong>Initialize:</strong> Start with <code>recipe(formula, data = training_data)</code>
+<ul>
+<li><code>formula</code>: Specifies the outcome and predictors (e.g., <code>income ~ .</code>).</li>
+<li><code>data</code>: The <em>training</em> data is used to learn parameters needed for some steps (e.g., means, standard deviations for scaling).</li>
+</ul></li>
+<li><strong>Add Steps:</strong> Use <code>step_*</code> functions to add preprocessing actions. Examples:
+<ul>
+<li><code>step_impute_mean()</code> / <code>step_impute_median()</code></li>
+<li><code>step_normalize()</code> / <code>step_scale()</code> (Center and scale numeric predictors)</li>
+<li><code>step_dummy()</code> / <code>step_novel()</code> / <code>step_other()</code> (Handle categorical predictors)</li>
+<li><code>step_zv()</code> (Remove zero-variance predictors)</li>
+<li>Many others!</li>
+</ul></li>
+</ol>
+</section>
+<section id="preparing-and-applying-the-recipe" class="slide level2 scrollable">
+<h2>Preparing and Applying the Recipe</h2>
+<ol type="1">
+<li><strong>Estimate (<code>prep()</code>):</strong> Learn the necessary parameters from the training data.
+<ul>
+<li><code>trained_recipe &lt;- prep(my_recipe, training = training_data)</code></li>
+<li>This calculates things like means, standard deviations, factor levels, etc., based <em>only</em> on the training set.</li>
+</ul></li>
+<li><strong>Apply (<code>bake()</code>):</strong> Apply the <em>trained</em> recipe to new data (training, validation, or test set).
+<ul>
+<li><code>processed_training_data &lt;- bake(trained_recipe, new_data = training_data)</code></li>
+<li><code>processed_test_data &lt;- bake(trained_recipe, new_data = test_data)</code></li>
+<li>Ensures consistent preprocessing is applied using parameters learned <em>only</em> from the training data.</li>
+</ul></li>
+</ol>
+</section>
+<section id="juice-vs-bake" class="slide level2">
+<h2><code>juice()</code> vs <code>bake()</code></h2>
+<ul>
+<li><code>juice(trained_recipe)</code>: Extracts the processed <em>training</em> data directly from the trained recipe object. Convenient shortcut.</li>
+<li><code>bake(trained_recipe, new_data = ...)</code>: Applies the trained recipe to <em>any</em> dataset (that has the required columns). Used for processing validation and test sets.</li>
+</ul>
+</section>
+<section id="building-models-with-keras" class="slide level2" data-background-color="#117733">
+<h2>Building Models with Keras</h2>
+</section>
+<section id="defining-a-model-architecture" class="slide level2">
+<h2>Defining a Model Architecture</h2>
+<ul>
+<li>For densely connected feedforward network in Keras we use <code>keras_model_sequential()</code>.</li>
+<li>Start with an empty sequential model.</li>
+<li>Add layers using the pipe operator (<code>%&gt;%</code> or <code>|&gt;</code>).</li>
+<li>Example: A simple MLP for binary classification</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>    <span class="co"># Assuming input_shape is defined based on preprocessed data</span></span>
+<span id="cb1-2"><a href=""></a>    model <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>(<span class="at">input_shape =</span> input_shape) <span class="sc">%&gt;%</span></span>
+<span id="cb1-3"><a href=""></a>      <span class="co"># Hidden layer 1: 64 neurons, ReLU activation</span></span>
+<span id="cb1-4"><a href=""></a>      <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">64</span>, <span class="at">activation =</span> <span class="st">"relu"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-5"><a href=""></a>      <span class="co"># Hidden layer 2: 32 neurons, ReLU activation</span></span>
+<span id="cb1-6"><a href=""></a>      <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">32</span>, <span class="at">activation =</span> <span class="st">"relu"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href=""></a>      <span class="co"># Output layer: 1 neuron, sigmoid activation (for binary probability)</span></span>
+<span id="cb1-8"><a href=""></a>      <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">"sigmoid"</span>) </span>
+<span id="cb1-9"><a href=""></a>      </span>
+<span id="cb1-10"><a href=""></a>    <span class="fu">summary</span>(model) <span class="co"># Print model architecture</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="layer-types" class="slide level2">
+<h2>Layer Types</h2>
+<ul>
+<li><code>layer_dense()</code>: Fully connected layer (most common).
+<ul>
+<li><code>units</code>: Number of neurons in the layer.</li>
+<li><code>activation</code>: Activation function (“relu”, “sigmoid”, “softmax”, “linear”, etc.).</li>
+</ul></li>
+<li>Other layer types exist for different tasks (e.g., <code>layer_conv_2d</code> for images, <code>layer_lstm</code> for sequences), but <code>layer_dense</code> is key for basic MLPs.</li>
+</ul>
+</section>
+<section id="compiling-the-model" class="slide level2 scrollable">
+<h2>Compiling the Model</h2>
+<ul>
+<li>Before training, must call <code>compile()</code>.</li>
+<li>This specifies:
+<ol type="1">
+<li><strong>Optimizer:</strong> The algorithm used to update the weights (gradient descent variant).
+<ul>
+<li><code>optimizer = "adam"</code> (common default)</li>
+<li><code>optimizer = optimizer_rmsprop(learning_rate = 0.001)</code></li>
+<li><code>optimizer = optimizer_sgd(learning_rate = 0.01, momentum = 0.9)</code></li>
+</ul></li>
+<li><strong>Loss Function:</strong> The function to minimize during training (empirical risk). Chosen based on the task.
+<ul>
+<li><code>loss = "mse"</code> (Mean Squared Error - for regression)</li>
+<li><code>loss = "binary_crossentropy"</code> (For binary classification - outputs probability via sigmoid)</li>
+<li><code>loss = "categorical_crossentropy"</code> (For multi-class classification - requires one-hot encoded targets and softmax output)</li>
+</ul></li>
+<li><strong>Metrics:</strong> Function(s) to monitor during training and evaluation (doesn’t affect training, just for reporting).
+<ul>
+<li><code>metrics = c("accuracy")</code></li>
+<li><code>metrics = c("mae", "mse")</code> (Mean Absolute Error, Mean Squared Error)</li>
+<li><code>metrics = c("auc")</code> (Area Under the ROC Curve)</li>
+</ul></li>
+</ol></li>
+</ul>
+</section>
+<section id="compiling-example" class="slide level2">
+<h2>Compiling Example</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>model <span class="sc">%&gt;%</span> <span class="fu">compile</span>(</span>
+<span id="cb2-2"><a href=""></a>  <span class="at">optimizer =</span> <span class="st">"adam"</span>,</span>
+<span id="cb2-3"><a href=""></a>  <span class="at">loss =</span> <span class="st">"binary_crossentropy"</span>, <span class="co"># For our binary income prediction</span></span>
+<span id="cb2-4"><a href=""></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">"accuracy"</span>, <span class="st">"auc"</span>) </span>
+<span id="cb2-5"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="training-the-model" class="slide level2">
+<h2>Training the Model</h2>
+<ul>
+<li>The core training loop is executed by <code>fit()</code>.</li>
+<li>You provide the training data and labels, and specify training parameters.</li>
+<li>Key arguments:
+<ul>
+<li><code>x</code>: Training data features (e.g., matrix from <code>bake()</code>).</li>
+<li><code>y</code>: Training data labels/targets.</li>
+<li><code>epochs</code>: Number of times to iterate over the entire training dataset.</li>
+<li><code>batch_size</code>: Number of samples per gradient update (SGD mini-batch size).</li>
+<li><code>validation_split</code>: Fraction of training data to set aside as a validation set for monitoring loss/metrics during training (e.g., <code>validation_split = 0.2</code>). Keras handles the split internally.</li>
+<li><code>validation_data</code>: Alternatively, provide a separate validation set explicitly <code>validation_data = list(x_val, y_val)</code>.</li>
+<li><code>callbacks</code>: List of functions to apply at different stages of training (e.g., <code>callback_early_stopping()</code>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="early-stopping" class="slide level2">
+<h2>Early Stopping</h2>
+<ul>
+<li>Crucial technique to prevent overfitting.</li>
+<li>Monitors a metric on the validation set (e.g., <code>val_loss</code> or <code>val_accuracy</code>).</li>
+<li>Stops training automatically when the monitored metric stops improving for a specified number of epochs (<code>patience</code>).</li>
+<li>Optionally restores the model weights from the epoch with the best performance (<code>restore_best_weights = TRUE</code>).</li>
+</ul>
+</section>
+<section id="eary-stopping-example" class="slide level2">
+<h2>Eary Stopping Example</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="co"># Define the callback</span></span>
+<span id="cb3-2"><a href=""></a>early_stopping <span class="ot">&lt;-</span> <span class="fu">callback_early_stopping</span>(</span>
+<span id="cb3-3"><a href=""></a>  <span class="at">monitor =</span> <span class="st">"val_loss"</span>, <span class="co"># Monitor validation loss</span></span>
+<span id="cb3-4"><a href=""></a>  <span class="at">patience =</span> <span class="dv">10</span>,        <span class="co"># Stop if no improvement for 10 epochs</span></span>
+<span id="cb3-5"><a href=""></a>  <span class="at">restore_best_weights =</span> <span class="cn">TRUE</span> </span>
+<span id="cb3-6"><a href=""></a>)</span>
+<span id="cb3-7"><a href=""></a></span>
+<span id="cb3-8"><a href=""></a><span class="co"># Pass it to fit()</span></span>
+<span id="cb3-9"><a href=""></a>history <span class="ot">&lt;-</span> model <span class="sc">%&gt;%</span> <span class="fu">fit</span>(</span>
+<span id="cb3-10"><a href=""></a>  x_train_processed, y_train,</span>
+<span id="cb3-11"><a href=""></a>  <span class="at">epochs =</span> <span class="dv">100</span>, <span class="co"># Set a high number, early stopping will halt it</span></span>
+<span id="cb3-12"><a href=""></a>  <span class="at">batch_size =</span> <span class="dv">128</span>,</span>
+<span id="cb3-13"><a href=""></a>  <span class="at">validation_split =</span> <span class="fl">0.2</span>, </span>
+<span id="cb3-14"><a href=""></a>  <span class="at">callbacks =</span> <span class="fu">list</span>(early_stopping) </span>
+<span id="cb3-15"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="the-history-object" class="slide level2">
+<h2>The history Object</h2>
+<ul>
+<li><code>fit()</code> returns a history object.</li>
+<li>It contains the loss and metric values recorded during training for both the training and validation sets (if used).</li>
+<li>Very useful for diagnosing training: <code>plot(history)</code> shows learning curves. Look for overfitting (training loss decreasing, validation loss increasing).</li>
+</ul>
+</section>
+<section id="evaluation-and-prediction" class="slide level2" data-background-color="#661100">
+<h2>Evaluation and Prediction</h2>
+</section>
+<section id="evaluating-final-performance-evaluate" class="slide level2">
+<h2>Evaluating Final Performance (evaluate())</h2>
+<ul>
+<li>Use the <code>evaluate()</code> method. It takes the processed test features and true test labels.</li>
+<li>It returns the loss and metric values (specified during <code>compile()</code>) calculated on the test set. This provides an unbiased estimate of generalization performance.</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="co"># Assume x_test_processed and y_test are prepared using the *trained* recipe</span></span>
+<span id="cb4-2"><a href=""></a>results <span class="ot">&lt;-</span> model <span class="sc">%&gt;%</span> <span class="fu">evaluate</span>(</span>
+<span id="cb4-3"><a href=""></a>  x_test_processed, </span>
+<span id="cb4-4"><a href=""></a>  y_test,</span>
+<span id="cb4-5"><a href=""></a>  <span class="at">batch_size =</span> <span class="dv">128</span> <span class="co"># Optional, can affect speed but not result</span></span>
+<span id="cb4-6"><a href=""></a>)</span>
+<span id="cb4-7"><a href=""></a></span>
+<span id="cb4-8"><a href=""></a><span class="fu">print</span>(results) </span>
+<span id="cb4-9"><a href=""></a><span class="co"># Example output: loss: 0.35, accuracy: 0.85, auc: 0.91 </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="making-predictions" class="slide level2">
+<h2>Making Predictions</h2>
+<ul>
+<li>To get the model’s output predictions on new data (e.g., the test set or future unseen data):
+<ul>
+<li>Use the <code>predict()</code> method.</li>
+<li>It takes the processed input features.</li>
+</ul></li>
+<li>The format of the predictions depends on the output layer’s activation function:
+<ul>
+<li>Sigmoid (binary classification): Returns probabilities (N x 1 matrix). You might need to threshold (e.g., at 0.5) to get class labels (0 or 1).</li>
+<li>Softmax (multi-class): Returns probabilities for each class (N x K matrix). You might use <code>which.max()</code> per row to get the predicted class label.</li>
+<li>Linear (regression): Returns the predicted numerical values (N x 1 matrix).</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># Get predicted probabilities for the test set</span></span>
+<span id="cb5-2"><a href=""></a>probabilities <span class="ot">&lt;-</span> model <span class="sc">%&gt;%</span> <span class="fu">predict</span>(x_test_processed)</span>
+<span id="cb5-3"><a href=""></a></span>
+<span id="cb5-4"><a href=""></a><span class="co"># Convert probabilities to class predictions (e.g., for accuracy calculation)</span></span>
+<span id="cb5-5"><a href=""></a>predicted_classes <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(probabilities <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="evaluation-with-yardstick" class="slide level2">
+<h2>Evaluation with yardstick</h2>
+<ul>
+<li><code>yardstick</code> (part of tidymodels) provides a much richer set of evaluation tools, especially for classification.</li>
+<li>Requires a data frame with columns for the true outcome and the model’s predictions (probabilities and/or classes).</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">library</span>(yardstick)</span>
+<span id="cb6-2"><a href=""></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-3"><a href=""></a></span>
+<span id="cb6-4"><a href=""></a><span class="co"># Create a results data frame</span></span>
+<span id="cb6-5"><a href=""></a>results_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-6"><a href=""></a>  <span class="at">truth =</span> <span class="fu">factor</span>(y_test), <span class="co"># True labels (as factors)</span></span>
+<span id="cb6-7"><a href=""></a>  <span class="at">probability =</span> <span class="fu">as.vector</span>(probabilities), <span class="co"># Predicted probabilities</span></span>
+<span id="cb6-8"><a href=""></a>  <span class="at">prediction =</span> <span class="fu">factor</span>(predicted_classes) <span class="co"># Predicted classes (as factors)</span></span>
+<span id="cb6-9"><a href=""></a>)</span>
+<span id="cb6-10"><a href=""></a></span>
+<span id="cb6-11"><a href=""></a><span class="co"># Calculate common metrics</span></span>
+<span id="cb6-12"><a href=""></a><span class="fu">conf_mat</span>(results_df, <span class="at">truth =</span> truth, <span class="at">estimate =</span> prediction) <span class="co"># Confusion Matrix</span></span>
+<span id="cb6-13"><a href=""></a><span class="fu">accuracy</span>(results_df, <span class="at">truth =</span> truth, <span class="at">estimate =</span> prediction)</span>
+<span id="cb6-14"><a href=""></a><span class="fu">roc_auc</span>(results_df, <span class="at">truth =</span> truth, probability) <span class="co"># AUC</span></span>
+<span id="cb6-15"><a href=""></a></span>
+<span id="cb6-16"><a href=""></a><span class="co"># Plot ROC curve</span></span>
+<span id="cb6-17"><a href=""></a><span class="fu">roc_curve</span>(results_df, <span class="at">truth =</span> truth, probability) <span class="sc">%&gt;%</span> <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="example-context-adult-income" class="slide level2" data-background-color="#882255">
+<h2>Example Context: Adult Income</h2>
+</section>
+<section id="the-adult-income-dataset" class="slide level2">
+<h2>The “Adult” Income Dataset</h2>
+<ul>
+<li>A classic benchmark dataset for binary classification.</li>
+<li>Source: UCI Machine Learning Repository (extracted from US Census Bureau data).</li>
+<li>Task: Predict whether an individual’s annual income exceeds $50,000 based on various census attributes.</li>
+<li>Outcome Variable: income (Binary: &lt;=50K or &gt;50K).</li>
+</ul>
+</section>
+<section id="variables-features" class="slide level2">
+<h2>Variables (Features)</h2>
+<ul>
+<li><code>age</code>: Continuous.</li>
+<li><code>workclass</code>: Categorical (Private, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, Without-pay, Never-worked).</li>
+<li><code>fnlwgt</code>: Continuous (sampling weight - often excluded from modeling).</li>
+<li><code>education</code>: Categorical (Bachelors, Some-college, 11th, HS-grad, Prof-school, Assoc-acdm, Assoc-voc, 9th, 7th-8th, 12th, Masters, 1st-4th, 10th, Doctorate, 5th-6th, Preschool).</li>
+<li><code>education_num</code>: Continuous (numerical representation of education).</li>
+<li><code>marital_status</code>: Categorical.</li>
+<li><code>occupation</code>: Categorical.</li>
+<li><code>relationship</code>: Categorical.</li>
+<li><code>race</code>: Categorical.</li>
+<li><code>sex</code>: Categorical (Female, Male).</li>
+<li><code>capital_gain</code>: Continuous.</li>
+<li><code>capital_loss</code>: Continuous.</li>
+<li><code>hours_per_week</code>: Continuous.</li>
+<li><code>native_country</code>: Categorical.</li>
+</ul>
+</section>
+<section id="binary-cross-entropy-loss" class="slide level2">
+<h2>Binary Cross-Entropy Loss</h2>
+<ul>
+<li>For binary classification (0/1 outcome), the standard loss function is Binary Cross-Entropy.</li>
+<li>Let <span class="math inline">\(y_i \in \{0, 1\}\)</span> be the true label and <span class="math inline">\(\hat{p}_i = f(x_i; \theta)\)</span> be the model’s predicted probability (output of the sigmoid neuron) that <span class="math inline">\(y_i=1\)</span>.</li>
+<li>The loss for a single observation is: <span class="math inline">\(L(y_i, \hat{p}_i) = - [y_i \log(\hat{p}_i) + (1 - y_i) \log(1 - \hat{p}_i)]\)</span></li>
+<li>If <span class="math inline">\(y_i=1\)</span>, loss is <span class="math inline">\(-\log(\hat{p}_i)\)</span>. Small loss if <span class="math inline">\(\hat{p}_i \approx 1\)</span>. Large loss if <span class="math inline">\(\hat{p}_i \approx 0\)</span>.</li>
+<li>If <span class="math inline">\(y_i=0\)</span>, loss is <span class="math inline">\(-\log(1 - \hat{p}_i)\)</span>. Small loss if <span class="math inline">\(\hat{p}_i \approx 0\)</span>. Large loss if <span class="math inline">\(\hat{p}_i \approx 1\)</span>.</li>
+<li>Minimizing the average binary cross-entropy over the training data is exactly equivalent to Maximum Likelihood Estimation (MLE) for a Logistic Regression model (assuming the sigmoid activation in the output layer).</li>
+</ul>
+</section>
+<section id="connection-to-logit-model" class="slide level2">
+<h2>Connection to Logit Model</h2>
+<ul>
+<li>Recall the logit model: <span class="math inline">\(P(Y=1|X) = \frac{1}{1 + e^{-X\beta}}\)</span>.</li>
+<li>The log-likelihood for N observations is: <span class="math inline">\(LL(\beta) = \sum_{i=1}^N [y_i \log(P(Y_i=1|x_i)) + (1 - y_i) \log(1 - P(Y_i=1|x_i))]\)</span></li>
+<li>Maximizing <span class="math inline">\(LL(\beta)\)</span> is equivalent to minimizing <span class="math inline">\(-LL(\beta)\)</span>.</li>
+<li>Letting <span class="math inline">\(\hat{p}_i = P(Y_i=1|x_i)\)</span>, minimizing the average binary cross-entropy: <span class="math inline">\(\hat{R}(\theta) = \frac{1}{N} \sum_{i=1}^N L(y_i, \hat{p}_i) = -\frac{1}{N} LL(\theta)\)</span></li>
+<li>So, training a single-layer neural network with one output neuron (sigmoid activation) using binary cross-entropy loss is essentially fitting a logistic regression model via gradient descent. NNs extend this by adding hidden layers for more flexibility.</li>
+</ul>
+</section>
+<section id="plan-for-the-code-example" class="slide level2 scrollable">
+<h2>Plan for the Code Example</h2>
+<ol type="1">
+<li>Load &amp; Explore: Load the Adult dataset, examine variables.</li>
+<li>Split Data: Use rsample (<code>initial_split</code>) for train/test split.</li>
+<li>Define Recipe: Use recipes to handle missing values, create dummy variables for categoricals, and normalize numeric predictors.</li>
+<li>Process Data: prep the recipe on training data, bake training and test sets. Extract processed matrices (x_train, y_train, x_test, y_test).</li>
+<li>Define Keras Model: Create a <code>keras_model_sequential</code> MLP (e.g., 2 hidden layers with ReLU, output layer with sigmoid).</li>
+<li>Compile Model: Use <code>compile</code> with <code>optimizer = "adam"</code>, <code>loss = "binary_crossentropy"</code>, <code>metrics = c("accuracy", "auc")</code>.</li>
+<li>Train Model: Use <code>fit</code> with epochs, batch_size, validation_split, and callback_early_stopping. Plot history.</li>
+<li>Evaluate Model: Use <code>evaluate</code> on the processed test set.</li>
+<li>Predict &amp; Analyze: Use <code>predict</code> on the test set. Use yardstick (e.g., <code>roc_auc</code>, <code>conf_mat</code>) to analyze results.</li>
+</ol>
+</section>
+<section id="questions" class="slide level2" data-background-color="#0077BB">
+<h2>Questions?</h2>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="slides_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="slides_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="slides_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>
