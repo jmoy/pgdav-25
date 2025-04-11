@@ -228,13 +228,13 @@ Jyotirmoy Bhattacharya
 <section id="the-goal-learning-from-data" class="slide level2">
 <h2>The Goal: Learning from Data</h2>
 <ul>
-<li>Knowing a set of input features (predictors, independent variables) <span class="math inline">\(X\)</span> predict an output (target, dependent variable) <span class="math inline">\(Y\)</span>.</li>
+<li>Knowing a set of input features (predictors, independent variables) <span class="math inline">\(X\)</span>, predict an output (target, dependent variable) <span class="math inline">\(Y\)</span>.</li>
 <li><strong>Supervised Learning:</strong> Learn from a dataset of labeled examples <span class="math inline">\((x_i, y_i)\)</span>, where <span class="math inline">\(i = 1, ..., N\)</span>.</li>
 <li>Examples:
 <ul>
 <li>Predicting income (<span class="math inline">\(Y\)</span>) based on education, age, occupation (<span class="math inline">\(X\)</span>).</li>
 <li>Classifying emails as spam (<span class="math inline">\(Y=1\)</span>) or not spam (<span class="math inline">\(Y=0\)</span>) based on email content (<span class="math inline">\(X\)</span>).</li>
-<li>Forecasting GDP growth (<span class="math inline">\(Y\)</span>) based on past economic indicators (<span class="math inline">\(X\)</span>).</li>
+<li>Extract a table (<span class="math inline">\(Y\)</span>) from a PDF page (<span class="math inline">\(X\)</span>).</li>
 </ul></li>
 </ul>
 </section>
@@ -261,7 +261,7 @@ Jyotirmoy Bhattacharya
 <section id="measuring-goodness-the-loss-function" class="slide level2">
 <h2>Measuring “Goodness”: The Loss Function</h2>
 <ul>
-<li>The <strong>Loss Function</strong>, <span class="math inline">\(L(y_{true}, y_{pred})\)</span>, which measures the “cost” or “error” of predicting <span class="math inline">\(y_{pred} = f(x; \theta)\)</span> when the true value is <span class="math inline">\(y_{true}\)</span>.</li>
+<li>The <strong>Loss Function</strong> <span class="math inline">\(L(y_{true}, y_{pred})\)</span>, measures the “cost” or “error” of predicting <span class="math inline">\(y_{pred} = f(x; \theta)\)</span> when the true value is <span class="math inline">\(y_{true}\)</span>.</li>
 <li>Desirable properties: <span class="math inline">\(L \ge 0\)</span>, and <span class="math inline">\(L=0\)</span> if <span class="math inline">\(y_{true} = y_{pred}\)</span>.</li>
 <li>Examples:
 <ul>
@@ -312,25 +312,25 @@ Jyotirmoy Bhattacharya
 <section id="functional-form-flexibility" class="slide level2">
 <h2>Functional Form Flexibility</h2>
 <ul>
-<li>Econometrics: Often relies on linear models or specific non-linear forms derived from economic theory (e.g., Logit/Probit from utility maximization). Parsimony is valued.</li>
-<li>Machine Learning: Embraces highly flexible functional forms (e.g., deep neural networks, random forests, gradient boosting). Can potentially capture very complex, non-linear relationships <em>without</em> prior theory. The cost can be interpretability.</li>
+<li><strong>Econometrics:</strong> Often relies on linear models or specific non-linear forms derived from economic theory (e.g., Logit/Probit from utility maximization). Parsimony is valued.</li>
+<li><strong>Machine Learning:</strong> Embraces highly flexible functional forms (e.g., deep neural networks, random forests, gradient boosting). Can potentially capture very complex, non-linear relationships <em>without</em> prior theory. The cost can be interpretability.</li>
 </ul>
 </section>
 <section id="theory-asymptotic-vs.-finite-sample" class="slide level2">
 <h2>Theory: Asymptotic vs.&nbsp;Finite Sample</h2>
 <ul>
-<li>Econometrics: Relies heavily on asymptotic theory (what happens as <span class="math inline">\(N \to \infty\)</span>) to justify properties of estimators (consistency, asymptotic normality) and inference (t-tests, F-tests).</li>
-<li>Machine Learning: More focused on <strong>generalization error</strong> (performance on unseen data) in finite samples. Concepts like the bias-variance trade-off are central. Cross-validation is a key tool for estimating generalization performance.</li>
+<li><strong>Econometrics:</strong> Relies heavily on asymptotic theory (what happens as <span class="math inline">\(N \to \infty\)</span>) to justify properties of estimators (consistency, asymptotic normality) and inference (t-tests, F-tests).</li>
+<li><strong>Machine Learning:</strong> More empirically driven. Performance measured by testing on hold-out data and benchmarks.</li>
 </ul>
 </section>
 <section id="prediction-vs.-causality" class="slide level2">
 <h2>Prediction vs.&nbsp;Causality</h2>
 <ul>
-<li><strong>Prediction:</strong> Goal is to build a model <span class="math inline">\(f(X)\)</span> that accurately predicts <span class="math inline">\(Y\)</span> for new <span class="math inline">\(X\)</span>. We don’t necessarily care <em>why</em> the prediction works, only that it does. (ML focus)
+<li><strong>Prediction:</strong> Goal is to build a model <span class="math inline">\(f(X)\)</span> that accurately predicts <span class="math inline">\(Y\)</span> for new <span class="math inline">\(X\)</span> under a fixed data generation process. We don’t necessarily care <em>why</em> the prediction works, only that it does.
 <ul>
-<li>Example: Predicting stock prices.</li>
+<li>Example: Father’s car ownership predicts child’s school marks.</li>
 </ul></li>
-<li><strong>Causal Inference:</strong> Goal is to understand the effect of changing a specific variable <span class="math inline">\(X_j\)</span> on <span class="math inline">\(Y\)</span>, holding other factors constant (<span class="math inline">\(\frac{\partial Y}{\partial X_j}\)</span>). Requires stronger assumptions (e.g., exogeneity, identification strategies). (Econometrics focus)
+<li><strong>Causal Inference:</strong> Goal is to understand the effect of <strong>intervening</strong> to set a variable to a changed value, changing the data generating-process. <strong>Counterfactual</strong>. Requires stronger assumptions (e.g., exogeneity, identification strategies).
 <ul>
 <li>Example: Estimating the effect of education on wages.</li>
 </ul></li>
@@ -352,7 +352,7 @@ Jyotirmoy Bhattacharya
 <section id="gradient-descent-the-intuition" class="slide level2">
 <h2>Gradient Descent: The Intuition</h2>
 <ul>
-<li>The negative gradient of the empirical risk <span class="math inline">\(\hat{R}(\theta)\)</span> with respect to <span class="math inline">\(\theta\)</span> give the direction of steepest descent.</li>
+<li>The negative gradient of the empirical risk <span class="math inline">\(\hat{R}(\theta)\)</span> with respect to <span class="math inline">\(\theta\)</span> gives the direction of steepest descent.</li>
 <li>Taking <em>small</em> steps in this direction will reduce empirical risk.</li>
 <li>If we keep doing that we will reach a minimum.</li>
 <li>Caveats!</li>
@@ -382,7 +382,7 @@ Jyotirmoy Bhattacharya
 <section id="stochastic-gradient-descent-sgd" class="slide level2">
 <h2>Stochastic Gradient Descent (SGD)</h2>
 <ul>
-<li>Idea: For empirical risk the gradient over the entire dataset is an average of the gradient at each observation. Approximate this population average by a sample average on a small, randomly chosen subset of the data, called a <strong>mini-batch</strong>.</li>
+<li>Idea: For empirical risk, the gradient over the entire dataset is an average of the gradient at each observation. Approximate this population average by a sample average on a small, randomly chosen subset of the data, called a <strong>mini-batch</strong>.</li>
 <li>Let <span class="math inline">\(\mathcal{B}_t\)</span> be a randomly selected mini-batch of size <span class="math inline">\(B\)</span> (the <strong>batch size</strong>) at step <span class="math inline">\(t\)</span>.</li>
 <li>Approximate the true gradient using only the mini-batch: <span class="math display">\[\tilde{g}^{(t)} = \frac{1}{B} \sum_{i \in \mathcal{B}_t} \nabla_{\theta} L(y_i, f(x_i; \theta^{(t)}))\]</span></li>
 <li>Update rule: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - \eta \tilde{g}^{(t)}\]</span></li>
@@ -400,13 +400,42 @@ Jyotirmoy Bhattacharya
 <section id="sgd-variants" class="slide level2">
 <h2>SGD Variants</h2>
 <ul>
-<li>Many variations exist to improve SGD’s convergence speed and stability:</li>
+<li>Many variations exist to improve SGD’s convergence speed and stability.</li>
 <li>An algorithm know as <em>Adam</em> is currently the default choice.</li>
 <li>Keras allows you to easily choose these optimizers.</li>
 </ul>
 </section>
 <section id="the-machine-learning-workflow" class="slide level2" data-background-color="#009E73">
 <h2>The Machine Learning Workflow</h2>
+</section>
+<section id="the-typical-ml-workflow-12" class="slide level2 scrollable">
+<h2>The Typical ML Workflow (1/2)</h2>
+<ol type="1">
+<li><strong>Data Preparation:</strong>
+<ul>
+<li>Load data.</li>
+<li>Clean data (handle missing values, outliers).</li>
+<li>Feature Engineering (create new predictors).</li>
+<li>Preprocessing (scaling/normalization, encoding categoricals).</li>
+</ul></li>
+<li><strong>Data Splitting:</strong> Divide into Training, Validation, and Test sets.</li>
+<li><strong>Model Training (Estimation):</strong>
+<ul>
+<li>Choose a model architecture/family.</li>
+<li>Choose hyperparameters (or a range to search over).</li>
+<li>Train the model(s) on the <strong>Training Set</strong>, often using the <strong>Validation Set</strong> to monitor progress (e.g., for early stopping) or tune hyperparameters (e.g., using cross-validation within the training set).</li>
+</ul></li>
+</ol>
+</section>
+<section id="the-typical-ml-workflow-22" class="slide level2 scrollable">
+<h2>The Typical ML Workflow (2/2)</h2>
+<ol start="4" type="1">
+<li><strong>Model Evaluation:</strong>
+<ul>
+<li>Evaluate the <em>final, chosen</em> model on the <strong>Test Set</strong> using relevant metrics (e.g., accuracy, MSE, AUC). This gives an unbiased estimate of generalization performance.</li>
+</ul></li>
+<li><strong>Deployment (Optional):</strong> Use the trained model to make predictions on new, unseen data.</li>
+</ol>
 </section>
 <section id="overfitting-the-central-problem" class="slide level2">
 <h2>Overfitting: The Central Problem</h2>
@@ -416,9 +445,6 @@ Jyotirmoy Bhattacharya
 <li>A model can become too complex and fit the noise or specific quirks of the training data perfectly.</li>
 <li>This leads to <strong>overfitting</strong>: Low training error but high error on new data.</li>
 </ul>
-<center>
-<em>(Insert a conceptual graph showing training error decreasing while validation error decreases then increases)</em>
-</center>
 </section>
 <section id="the-traintest-split" class="slide level2 scrollable">
 <h2>The Train/Test Split</h2>
@@ -449,46 +475,22 @@ Jyotirmoy Bhattacharya
 </ol></li>
 </ul>
 </section>
-<section id="the-typical-ml-workflow" class="slide level2 scrollable">
-<h2>The Typical ML Workflow</h2>
-<ol type="1">
-<li><strong>Data Preparation:</strong>
-<ul>
-<li>Load data.</li>
-<li>Clean data (handle missing values, outliers).</li>
-<li>Feature Engineering (create new predictors).</li>
-<li>Preprocessing (scaling/normalization, encoding categoricals).</li>
-</ul></li>
-<li><strong>Data Splitting:</strong> Divide into Training, Validation, and Test sets.</li>
-<li><strong>Model Training (Estimation):</strong>
-<ul>
-<li>Choose a model architecture/family.</li>
-<li>Choose hyperparameters (or a range to search over).</li>
-<li>Train the model(s) on the <strong>Training Set</strong>, often using the <strong>Validation Set</strong> to monitor progress (e.g., for early stopping) or tune hyperparameters (e.g., using cross-validation within the training set).</li>
-</ul></li>
-<li><strong>Model Evaluation:</strong>
-<ul>
-<li>Evaluate the <em>final, chosen</em> model on the <strong>Test Set</strong> using relevant metrics (e.g., accuracy, MSE, AUC). This gives an unbiased estimate of generalization performance.</li>
-</ul></li>
-<li><strong>Deployment (Optional):</strong> Use the trained model to make predictions on new, unseen data.</li>
-</ol>
-</section>
 <section id="neural-networks-the-basics" class="slide level2" data-background-color="#CC79A7">
 <h2>Neural Networks: The Basics</h2>
 </section>
-<section id="what-are-neural-networks-nns" class="slide level2">
-<h2>What are Neural Networks (NNs)?</h2>
+<section id="what-are-neural-networks" class="slide level2">
+<h2>What are Neural Networks?</h2>
 <ul>
 <li>Inspired (loosely) by the structure of brains.</li>
 <li>Essentially, they are complex, parameterized functions <span class="math inline">\(f(X; \theta)\)</span> built by composing many simpler computational units (neurons) together in a network structure.</li>
 <li>They are <strong>computation graphs</strong>: data flows in, undergoes a series of transformations defined by the network’s structure and parameters, and an output is produced.</li>
-<li>The parameters <span class="math inline">\(\theta\)</span> (weights and biases) are learned from data using ERM and gradient descent (usually SGD).</li>
+<li>The parameters <span class="math inline">\(\theta\)</span> are learned from data using ERM and gradient descent (usually SGD).</li>
 </ul>
 </section>
 <section id="why-use-neural-networks" class="slide level2">
 <h2>Why Use Neural Networks?</h2>
 <ul>
-<li>Universal Approximators. (Not really a big deal) NNs (with certain properties, like at least one hidden layer and a non-linear activation function) can theoretically approximate <em>any</em> continuous function to an arbitrary degree of accuracy, given enough neurons.</li>
+<li>Universal Approximators.</li>
 <li>Feature Learning.</li>
 <li>Fast Hardware.</li>
 <li>It works! (If you have sufficient data)</li>
@@ -510,15 +512,12 @@ Jyotirmoy Bhattacharya
 </ul></li>
 </ul>
 </section>
-<section class="slide level2">
-
-</section>
 <section id="network-architecture-layers" class="slide level2 scrollable">
 <h2>Network Architecture: Layers</h2>
 <ul>
 <li>Neurons are typically organized into <strong>layers</strong>:
 <ol type="1">
-<li><strong>Input Layer:</strong> Represents the raw input features <span class="math inline">\(X\)</span>. Not really computational neurons, just passes data through.</li>
+<li><strong>Input Layer:</strong> Represents the raw input features <span class="math inline">\(X\)</span>.</li>
 <li><strong>Hidden Layers:</strong> One or more layers of neurons between the input and output. These perform intermediate computations and learn data representations. This is where the “depth” in “deep learning” comes from.</li>
 <li><strong>Output Layer:</strong> Produces the final prediction(s). The number of neurons and their activation function depend on the task (regression vs.&nbsp;classification).</li>
 </ol></li>
@@ -533,7 +532,7 @@ In a <em>fully connected</em> or <em>dense</em> layer each neuron in the layer i
 <li>The simplest and most common architecture.</li>
 <li>Information flows in one direction: from input layer, through hidden layers (if any), to output layer.</li>
 <li>No cycles or loops in the connections.</li>
-<li><strong>Multilayer Perceptron (MLP):</strong> A feedforward network with one or more hidden layers.</li>
+<li><strong>Multilayer Perceptron (MLP):</strong> A fully-connected feedforward network with one or more hidden layers.</li>
 </ul>
 </section>
 <section id="activation-functions" class="slide level2" data-background-color="#44AA99">
@@ -553,6 +552,7 @@ In a <em>fully connected</em> or <em>dense</em> layer each neuron in the layer i
 <li><strong>Rectified Linear Unit (ReLU):</strong> <span class="math inline">\(g(z) = \max(0, z)\)</span>
 <ul>
 <li>Outputs the input directly if positive, otherwise outputs zero.</li>
+<li>Current default for hidden layers.</li>
 </ul></li>
 <li><strong>Sigmoid (Logistic):</strong> <span class="math inline">\(g(z) = \frac{1}{1 + e^{-z}}\)</span>
 <ul>
@@ -588,11 +588,11 @@ In a <em>fully connected</em> or <em>dense</em> layer each neuron in the layer i
 <h2>Setting up Keras in R</h2>
 <ul>
 <li>Install the <code>keras3</code> R package: <code>install.packages("keras")</code></li>
-<li>Install Keras and a backend (e.g., TensorFlow, JAX): <code>keras::install_keras()</code>
+<li>Install Keras and a backend (e.g., TensorFlow, JAX): <code>keras3::install_keras()</code>
 <ul>
 <li>This handles the Python dependencies via <code>reticulate</code>.</li>
 </ul></li>
-<li>Configure the backend</li>
+<li>Configure the backend : <code>keras3::use_backend("jax")</code></li>
 <li>Start modelling!</li>
 <li>Finicky in reality to get everything working</li>
 </ul>
@@ -733,20 +733,14 @@ In a <em>fully connected</em> or <em>dense</em> layer each neuron in the layer i
 <li><strong>Optimizer:</strong> The algorithm used to update the weights (gradient descent variant).
 <ul>
 <li><code>optimizer = "adam"</code> (common default)</li>
-<li><code>optimizer = optimizer_rmsprop(learning_rate = 0.001)</code></li>
-<li><code>optimizer = optimizer_sgd(learning_rate = 0.01, momentum = 0.9)</code></li>
 </ul></li>
 <li><strong>Loss Function:</strong> The function to minimize during training (empirical risk). Chosen based on the task.
 <ul>
 <li><code>loss = "mse"</code> (Mean Squared Error - for regression)</li>
-<li><code>loss = "binary_crossentropy"</code> (For binary classification - outputs probability via sigmoid)</li>
-<li><code>loss = "categorical_crossentropy"</code> (For multi-class classification - requires one-hot encoded targets and softmax output)</li>
 </ul></li>
 <li><strong>Metrics:</strong> Function(s) to monitor during training and evaluation (doesn’t affect training, just for reporting).
 <ul>
-<li><code>metrics = c("accuracy")</code></li>
 <li><code>metrics = c("mae", "mse")</code> (Mean Absolute Error, Mean Squared Error)</li>
-<li><code>metrics = c("auc")</code> (Area Under the ROC Curve)</li>
 </ul></li>
 </ol></li>
 </ul>
